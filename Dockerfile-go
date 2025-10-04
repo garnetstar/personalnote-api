@@ -1,6 +1,0 @@
-# build stage
-FROM golang:1.21-alpine AS build
-WORKDIR /app
-
-# cache dependencies
-COPY go.mod ./

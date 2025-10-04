@@ -1,2 +1,6 @@
 .git
 *.log
+data/
+mysql_data/
+README.md
+.env.example
