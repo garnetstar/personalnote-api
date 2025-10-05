@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -31,59 +30,10 @@ func HelloHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// UserHandler handles user-related requests
-func UserHandler(w http.ResponseWriter, r *http.Request) {
-	// Only accept POST requests
-	if r.Method != http.MethodPost {
-		utils.SendErrorResponse(w, http.StatusMethodNotAllowed,
-			"Method not allowed", "Only POST requests are accepted")
-		return
-	}
-
-	// Read and parse the request body
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		log.Printf("Error reading request body: %v", err)
-		utils.SendErrorResponse(w, http.StatusBadRequest,
-			"Invalid request body", "Could not read request body")
-		return
-	}
-	defer r.Body.Close()
-
-	// Parse JSON
-	var user models.User
-	if err := json.Unmarshal(body, &user); err != nil {
-		log.Printf("Error parsing JSON: %v", err)
-		utils.SendErrorResponse(w, http.StatusBadRequest,
-			"Invalid JSON", "Could not parse JSON request body")
-		return
-	}
-
-	// Validate the request
-	validationErrors := utils.ValidateUser(user)
-	if len(validationErrors) > 0 {
-		log.Printf("Validation failed: %v", validationErrors)
-		utils.SendErrorResponse(w, http.StatusBadRequest,
-			"Validation failed",
-			fmt.Sprintf("Validation errors: %s", strings.Join(validationErrors, ", ")))
-		return
-	}
-
-	// Log the valid request to console
-	log.Printf("✅ Received valid user data: Name=%s, ID=%d", user.Name, user.ID)
-	log.Printf("📝 Full request body: %s", string(body))
-
-	// Send success response
-	message := fmt.Sprintf("User %s with ID %d has been processed successfully", user.Name, user.ID)
-	utils.SendSuccessResponse(w, message)
-}
-
 // ArticlesHandler handles requests for listing all articles
 func ArticlesHandler(w http.ResponseWriter, r *http.Request) {
 	// Only accept GET requests
-	if r.Method != http.MethodGet {
-		utils.SendErrorResponse(w, http.StatusMethodNotAllowed,
-			"Method not allowed", "Only GET requests are accepted")
+	if !utils.ValidateHTTPMethod(w, r, http.MethodGet) {
 		return
 	}
 
@@ -115,9 +65,7 @@ func ArticlesHandler(w http.ResponseWriter, r *http.Request) {
 // ArticleByIDHandler handles requests for getting a specific article by ID
 func ArticleByIDHandler(w http.ResponseWriter, r *http.Request) {
 	// Only accept GET requests
-	if r.Method != http.MethodGet {
-		utils.SendErrorResponse(w, http.StatusMethodNotAllowed,
-			"Method not allowed", "Only GET requests are accepted")
+	if !utils.ValidateHTTPMethod(w, r, http.MethodGet) {
 		return
 	}
 

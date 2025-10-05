@@ -7,12 +7,6 @@ type Response struct {
 	Message string `json:"message"`
 }
 
-// User represents a user entity
-type User struct {
-	Name string `json:"name"`
-	ID   int    `json:"id"`
-}
-
 // Article represents an article entity from the database
 type Article struct {
 	ID      int        `json:"id" db:"id"`

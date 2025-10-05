@@ -1,22 +1,15 @@
 package utils
 
 import (
-	"strings"
-
-	"personalnote.eu/simple-go-api/models"
+	"net/http"
 )
 
-// ValidateUser validates a user struct and returns validation errors
-func ValidateUser(user models.User) []string {
-	var validationErrors []string
-
-	if strings.TrimSpace(user.Name) == "" {
-		validationErrors = append(validationErrors, "name is required")
+// ValidateHTTPMethod validates that the request uses the specified HTTP method
+func ValidateHTTPMethod(w http.ResponseWriter, r *http.Request, allowedMethod string) bool {
+	if r.Method != allowedMethod {
+		SendErrorResponse(w, http.StatusMethodNotAllowed,
+			"Method not allowed", "Only "+allowedMethod+" requests are accepted")
+		return false
 	}
-
-	if user.ID <= 0 {
-		validationErrors = append(validationErrors, "id must be a positive integer")
-	}
-
-	return validationErrors
+	return true
 }
