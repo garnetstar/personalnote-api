@@ -154,3 +154,28 @@ func ArticleFindHandler(w http.ResponseWriter, r *http.Request) {
 	utils.SendJSONResponse(w, http.StatusOK, article)
 
 }
+
+// UserHandler handles user creation
+func UserHandler(w http.ResponseWriter, r *http.Request) {
+	// Only accept POST requests
+	if !utils.ValidateHTTPMethod(w, r, http.MethodPost) {
+		return
+	}
+
+	var user models.User
+	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+		utils.SendErrorResponse(w, http.StatusBadRequest,
+			"Invalid JSON", "Could not parse request body")
+		return
+	}
+
+	// Validate user data
+	if user.Name == "" || user.ID <= 0 {
+		utils.SendErrorResponse(w, http.StatusBadRequest,
+			"Invalid user data", "Name and ID are required")
+		return
+	}
+
+	log.Printf("👤 Creating user: %s (ID: %d)", user.Name, user.ID)
+	utils.SendJSONResponse(w, http.StatusCreated, user)
+}
