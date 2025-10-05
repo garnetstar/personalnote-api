@@ -10,6 +10,6 @@ import (
 func SetupRoutes() {
 	http.HandleFunc("/", handlers.HelloHandler)
 	http.HandleFunc("/articles", handlers.ArticlesHandler)
+	http.HandleFunc("/article/filter/", handlers.ArticleFindHandler)
 	http.HandleFunc("/article/", handlers.ArticleByIDHandler)
-
 }

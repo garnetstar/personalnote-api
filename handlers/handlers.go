@@ -108,3 +108,49 @@ func ArticleByIDHandler(w http.ResponseWriter, r *http.Request) {
 	// Send JSON response
 	utils.SendJSONResponse(w, http.StatusOK, article)
 }
+
+// ArticleFindHandler handles requests for finding articles with filter parameters
+func ArticleFindHandler(w http.ResponseWriter, r *http.Request) {
+	// Only accept GET requests
+	if !utils.ValidateHTTPMethod(w, r, http.MethodGet) {
+		return
+	}
+
+	// Extract filter parameters from URL path
+	// Expected format: /article/filter/aaa/bbb
+	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	if len(parts) < 4 || !(parts[2] == "title" || parts[2] == "all") {
+		utils.SendErrorResponse(w, http.StatusBadRequest,
+			"Invalid URL", "Expected format: /article/filter/(title|all)/{param2}")
+		return
+	}
+
+	log.Printf("Extracted parts: %v", parts)
+
+	param1 := parts[2]
+	keyword := parts[3]
+
+	var article interface{}
+	var err error
+
+	switch param1 {
+	case "title":
+		article, err = utils.FindArticlesByTitle(keyword)
+	case "all":
+		article, err = utils.FindArticlesByAll(keyword)
+	}
+
+	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			utils.SendErrorResponse(w, http.StatusNotFound,
+				"Article not found", fmt.Sprintf("Article with title '%s' not found", keyword))
+		} else {
+			log.Printf("Error fetching article: %v", err)
+			utils.SendErrorResponse(w, http.StatusInternalServerError,
+				"Database error", "Failed to retrieve article from database")
+		}
+		return
+	}
+	utils.SendJSONResponse(w, http.StatusOK, article)
+
+}
