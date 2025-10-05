@@ -68,6 +68,15 @@ services:
     networks:
       - app-network
 
+  reactapp:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    profiles:
+      - frontend
+
 # Define networks
 networks:
   app-network:

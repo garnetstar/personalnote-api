@@ -32,9 +32,15 @@ A clean, modular REST API built with Go that demonstrates best practices for cod
    docker compose build
    ```
 
+   To include the optional React frontend container, add the `frontend` profile:
+   ```bash
+   docker compose --profile frontend up --build
+   ```
+
 3. **Access the services:**
    - **API**: http://localhost:8080
    - **Database Admin (phpMyAdmin)**: http://localhost:8081
+   - **Frontend UI** (if started with the `frontend` profile): http://localhost:3000
 
 ### Option 2: Local Development
 
@@ -113,3 +119,12 @@ Press `Ctrl+C` in the terminal
 ---
 
 **That's it! Your API is ready to use. 🚀**
+
+## 🌐 CORS configuration
+
+The API now includes built-in CORS handling so the React frontend (or any external client) can call it directly.
+
+- **Allow all origins (default):** no extra configuration required.
+- **Restrict origins:** set `CORS_ALLOWED_ORIGINS` to a comma-separated list (e.g. `http://localhost:3000,https://example.com`).
+
+Remember to restart the API container or process after changing the environment variable so the new policy is applied.
