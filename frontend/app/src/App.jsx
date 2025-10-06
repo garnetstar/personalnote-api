@@ -157,10 +157,6 @@ export default function App() {
   return (
     <div className="app">
       <header className="app__header">
-        <div className="app__title">
-          <h1>Articles Dashboard</h1>
-          <p>Browse and search content served by the Simple Go API backend.</p>
-        </div>
         <button
           type="button"
           className="secondary"

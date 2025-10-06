@@ -111,6 +111,10 @@ docker compose stop
 
 # Restart stopped containers
 docker compose start
+
+# Start with frontend
+docker compose --profile frontend up -d
+
 ```
 
 ### Local Development
