@@ -30,12 +30,14 @@ A clean, modular REST API built with Go that demonstrates best practices for cod
    
    # Build only (without starting)
    docker compose build
-   ```
-
-   To include the optional React frontend container, add the `frontend` profile:
-   ```bash
+ 
+   # start with frontend and do build
    docker compose --profile frontend up --build
+
+   # start with frontend in debug mode
+   docker compose up -d && cd ./frontend/app && npm start dev
    ```
+   
 
 3. **Access the services:**
    - **API**: http://localhost:8080
