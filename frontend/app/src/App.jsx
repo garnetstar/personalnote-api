@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, memo } from 'react';
+import { Link } from 'react-router-dom';
 import ArticleList from './components/ArticleList.jsx';
 import './App.css';
 
@@ -43,6 +44,54 @@ const extractMessage = (payload) => {
   return payload.message || payload.detail || payload.error;
 };
 
+const getAnchorId = (article, index) => {
+  if (article && (article.id || article.id === 0)) {
+    return `article-${article.id}`;
+  }
+
+  return `article-${index}`;
+};
+
+const Sidebar = memo(({ loading, articles, sidebarEntries, isCompactLayout }) => {
+  return (
+    <aside className="app__sidebar" aria-label="Article titles">
+      <header className="app__sidebar-header">
+        <h2>Articles</h2>
+        <span className="app__sidebar-count" aria-live="polite">
+          {loading ? '…' : articles.length}
+        </span>
+      </header>
+
+      {isCompactLayout && (
+        <p className="app__sidebar-tip" role="status">
+          This panel is stacked above the articles on small screens. Enlarge your window to keep it docked to the left.
+        </p>
+      )}
+
+      {loading && articles.length === 0 ? (
+        <p className="app__sidebar-placeholder">Loading titles…</p>
+      ) : sidebarEntries.length === 0 ? (
+        <p className="app__sidebar-placeholder">No articles to display yet. (articles: {articles.length}, entries: {sidebarEntries.length})</p>
+      ) : (
+        <ul className="app__sidebar-list">
+          {sidebarEntries.map((entry) => (
+            <li key={entry.anchorId} className="app__sidebar-item">
+              <Link to={`/article/${entry.id}`} className="app__sidebar-link">
+                <span className="app__sidebar-title">{entry.label}</span>
+                <span className="app__sidebar-date">
+                  {entry.updated ? new Date(entry.updated).toLocaleDateString('cs-CZ') : '—'}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </aside>
+  );
+});
+
+Sidebar.displayName = 'Sidebar';
+
 export default function App() {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -50,8 +99,14 @@ export default function App() {
   const [status, setStatus] = useState('Loading articles…');
   const [filterMode, setFilterMode] = useState('all');
   const [keyword, setKeyword] = useState('');
-  const [articleId, setArticleId] = useState('');
   const [lastUpdatedAt, setLastUpdatedAt] = useState(null);
+  const [isCompactLayout, setIsCompactLayout] = useState(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+      return false;
+    }
+
+    return window.matchMedia('(max-width: 768px)').matches;
+  });
 
   const baseUrl = useMemo(() => normalizeBaseUrl(API_BASE_URL), []);
 
@@ -110,6 +165,35 @@ export default function App() {
     loadAllArticles();
   }, [loadAllArticles]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+      return undefined;
+    }
+
+    const mediaQuery = window.matchMedia('(max-width: 768px)');
+
+    const updateCompactLayout = (event) => {
+      setIsCompactLayout(event.matches);
+    };
+
+    // Ensure the initial value stays in sync with the current viewport.
+    setIsCompactLayout(mediaQuery.matches);
+
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', updateCompactLayout);
+    } else {
+      mediaQuery.addListener(updateCompactLayout);
+    }
+
+    return () => {
+      if (typeof mediaQuery.removeEventListener === 'function') {
+        mediaQuery.removeEventListener('change', updateCompactLayout);
+      } else {
+        mediaQuery.removeListener(updateCompactLayout);
+      }
+    };
+  }, []);
+
   const handleKeywordSubmit = async (event) => {
     event.preventDefault();
     const trimmedKeyword = keyword.trim();
@@ -125,125 +209,106 @@ export default function App() {
     });
   };
 
-  const handleIdSubmit = async (event) => {
-    event.preventDefault();
-    const trimmedId = articleId.trim();
-
-    if (!trimmedId) {
-      setError('Please provide an article ID to look up.');
-      setStatus('Awaiting a valid article ID.');
-      return;
-    }
-
-    if (!/^\d+$/.test(trimmedId)) {
-      setError('Article IDs must be numeric.');
-      setStatus('Awaiting a valid article ID.');
-      return;
-    }
-
-    await fetchArticles(`/article/${trimmedId}`, {
-      emptyMessage: `No article found with ID ${trimmedId}.`,
-    });
-  };
-
   const handleResetFilters = () => {
     setKeyword('');
-    setArticleId('');
     setFilterMode('all');
     setError(null);
     loadAllArticles();
   };
 
+  const sidebarEntries = useMemo(
+    () =>
+      articles.map((article, index) => ({
+        anchorId: getAnchorId(article, index),
+        label: (article.title && article.title.trim()) || `Untitled article ${index + 1}`,
+        id: article.id ?? index,
+        updated: article.updated,
+      })),
+    [articles]
+  );
+
   return (
     <div className="app">
-      <header className="app__header">
-        <button
-          type="button"
-          className="secondary"
-          onClick={loadAllArticles}
-          disabled={loading}
-        >
-          Refresh
-        </button>
-      </header>
+      <div className={`app__layout${isCompactLayout ? ' app__layout--stacked' : ''}`}>
+        <Sidebar 
+          loading={loading}
+          articles={articles}
+          sidebarEntries={sidebarEntries}
+          isCompactLayout={isCompactLayout}
+        />
 
-      <section className="stat-card" aria-live="polite">
-        <div className="stat-card__primary">
-          <h2>{articles.length}</h2>
-          <p>{articles.length === 1 ? 'article loaded' : 'articles loaded'}</p>
-        </div>
-        <div className="stat-card__meta">
-          <span>
-            API base URL: <code>{baseUrl}</code>
-          </span>
-          <span>
-            Last updated:{' '}
-            {lastUpdatedAt ? lastUpdatedAt.toLocaleString() : '—'}
-          </span>
-        </div>
-      </section>
+        <main className="app__main">
+          <header className="app__header">
+            <button
+              type="button"
+              className="secondary"
+              onClick={loadAllArticles}
+              disabled={loading}
+            >
+              Refresh
+            </button>
+          </header>
 
-      <section className="controls" aria-label="Article filters and search">
-        <form className="toolbar" onSubmit={handleKeywordSubmit}>
-          <label className="toolbar__label" htmlFor="keyword-input">
-            Keyword search
-          </label>
-          <select
-            id="filter-mode"
-            value={filterMode}
-            onChange={(event) => setFilterMode(event.target.value)}
-            disabled={loading}
-          >
-            <option value="all">Title &amp; content</option>
-            <option value="title">Title only</option>
-          </select>
-          <input
-            id="keyword-input"
-            type="text"
-            placeholder="e.g. technology"
-            value={keyword}
-            onChange={(event) => setKeyword(event.target.value)}
-            disabled={loading}
-            autoComplete="off"
-          />
-          <button type="submit" disabled={loading}>
-            Search
-          </button>
-        </form>
+          <section className="stat-card" aria-live="polite">
+            <div className="stat-card__primary">
+              <h2>{articles.length}</h2>
+              <p>{articles.length === 1 ? 'article loaded' : 'articles loaded'}</p>
+            </div>
+            <div className="stat-card__meta">
+              <span>
+                API base URL: <code>{baseUrl}</code>
+              </span>
+              <span>
+                Last updated:{' '}
+                {lastUpdatedAt ? lastUpdatedAt.toLocaleString() : '—'}
+              </span>
+            </div>
+          </section>
 
-        <form className="toolbar" onSubmit={handleIdSubmit}>
-          <label className="toolbar__label" htmlFor="article-id">
-            Lookup by ID
-          </label>
-          <input
-            id="article-id"
-            type="text"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            placeholder="e.g. 42"
-            value={articleId}
-            onChange={(event) => setArticleId(event.target.value)}
-            disabled={loading}
-          />
-          <button type="submit" disabled={loading}>
-            Fetch
-          </button>
-        </form>
+          <section className="controls" aria-label="Article filters and search">
+            <form className="toolbar" onSubmit={handleKeywordSubmit}>
+              <label className="toolbar__label" htmlFor="keyword-input">
+                Keyword search
+              </label>
+              <select
+                id="filter-mode"
+                value={filterMode}
+                onChange={(event) => setFilterMode(event.target.value)}
+                disabled={loading}
+              >
+                <option value="all">Title &amp; content</option>
+                <option value="title">Title only</option>
+              </select>
+              <input
+                id="keyword-input"
+                type="text"
+                placeholder="e.g. technology"
+                value={keyword}
+                onChange={(event) => setKeyword(event.target.value)}
+                disabled={loading}
+                autoComplete="off"
+              />
+              <button type="submit" disabled={loading}>
+                Search
+              </button>
+            </form>
 
-        <div className="toolbar toolbar--actions">
-          <button type="button" className="secondary" onClick={handleResetFilters} disabled={loading}>
-            Clear filters
-          </button>
-        </div>
-      </section>
+            <div className="toolbar toolbar--actions">
+              <button type="button" className="secondary" onClick={handleResetFilters} disabled={loading}>
+                Clear filters
+              </button>
+            </div>
+          </section>
 
-      <div className={`status-bar${error ? ' status-bar--error' : ''}`} role="status" aria-live="polite">
-        <span className="status-chip">{loading ? 'Loading' : error ? 'Error' : 'Ready'}</span>
-        {loading && <span className="loader" aria-hidden="true" />}
-        <span className="message">{error || status}</span>
+          <div className={`status-bar${error ? ' status-bar--error' : ''}`} role="status" aria-live="polite">
+            <span className="status-chip">{loading ? 'Loading' : error ? 'Error' : 'Ready'}</span>
+            {loading && <span className="loader" aria-hidden="true" />}
+            <span className="message">{error || status}</span>
+          </div>
+
+          <ArticleList articles={articles} loading={loading} />
+        </main>
       </div>
-
-      <ArticleList articles={articles} loading={loading} />
     </div>
   );
 }

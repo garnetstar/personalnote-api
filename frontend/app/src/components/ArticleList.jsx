@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import './ArticleList.css';
@@ -14,6 +15,14 @@ const formatDate = (value) => {
   }
 
   return parsed.toLocaleString();
+};
+
+const getAnchorId = (article, index) => {
+  if (article && (article.id || article.id === 0)) {
+    return `article-${article.id}`;
+  }
+
+  return `article-${index}`;
 };
 
 export default function ArticleList({ articles, loading }) {
@@ -44,14 +53,22 @@ export default function ArticleList({ articles, loading }) {
           `${article.title ?? 'article'}-${article.updated ?? index}`;
         const shouldCollapse = hasContent && article.content.trim().length > 420;
         const isExpanded = Boolean(expandedCards[key]);
+        const anchorId = getAnchorId(article, index);
 
         return (
           <li
             key={key}
             className="article-card"
+            id={anchorId}
           >
             <header className="article-card__header">
-              <span className="article-card__id">#{article.id ?? '—'}</span>
+              <Link 
+                to={`/article/${article.id}`} 
+                className="article-card__id"
+                title={`View article #${article.id ?? '—'}`}
+              >
+                #{article.id ?? '—'}
+              </Link>
               <h3>{article.title || 'Untitled article'}</h3>
               <span
                 className="article-card__updated"

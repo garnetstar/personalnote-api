@@ -9,9 +9,9 @@
 
 .article-card {
   background: var(--card-bg);
-  border-radius: 1.25rem;
+  border-radius: 4px;
   padding: 1.5rem;
-  box-shadow: 0 24px 55px rgba(2, 6, 23, 0.55);
+  box-shadow: 0 2px 8px rgba(2, 6, 23, 0.15);
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -38,8 +38,20 @@
   color: #0b1120;
   background: rgba(96, 165, 250, 0.85);
   padding: 0.35rem 0.65rem;
-  border-radius: 999px;
+  border-radius: 4px;
   font-size: 0.9rem;
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.15s ease;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.article-card__id:hover,
+.article-card__id:focus {
+  background: rgba(96, 165, 250, 1);
+  transform: translateY(-1px);
+  outline: none;
+  box-shadow: 0 4px 12px rgba(96, 165, 250, 0.4);
 }
 
 .article-card__updated {

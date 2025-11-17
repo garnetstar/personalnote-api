@@ -152,5 +152,4 @@ func ArticleFindHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	utils.SendJSONResponse(w, http.StatusOK, article)
-
 }
