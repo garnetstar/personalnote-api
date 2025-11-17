@@ -15,7 +15,7 @@ func GetAllArticles() ([]models.Article, error) {
 	}
 
 	query := `
-		SELECT id, title, content, created, updated, deleted 
+		SELECT id, user_id, title, content, created, updated, deleted 
 		FROM article 
 		WHERE deleted IS NULL 
 		ORDER BY updated DESC, id DESC
@@ -34,6 +34,7 @@ func GetAllArticles() ([]models.Article, error) {
 		var article models.Article
 		err := rows.Scan(
 			&article.ID,
+			&article.UserID,
 			&article.Title,
 			&article.Content,
 			&article.Created,
@@ -63,7 +64,7 @@ func GetArticleByID(id int) (*models.Article, error) {
 	}
 
 	query := `
-		SELECT id, title, content, created, updated, deleted 
+		SELECT id, user_id, title, content, created, updated, deleted 
 		FROM article 
 		WHERE id = ? AND deleted IS NULL
 	`
@@ -71,6 +72,7 @@ func GetArticleByID(id int) (*models.Article, error) {
 	var article models.Article
 	err := DB.QueryRow(query, id).Scan(
 		&article.ID,
+		&article.UserID,
 		&article.Title,
 		&article.Content,
 		&article.Created,
@@ -96,7 +98,7 @@ func FindArticlesByTitle(title string) ([]models.Article, error) {
 	}
 
 	query := `
-		SELECT id, title, content, created, updated, deleted 
+		SELECT id, user_id, title, content, created, updated, deleted 
 		FROM article 
 		WHERE title LIKE ? AND deleted IS NULL
 		ORDER BY updated DESC
@@ -115,6 +117,7 @@ func FindArticlesByTitle(title string) ([]models.Article, error) {
 		var article models.Article
 		err := rows.Scan(
 			&article.ID,
+			&article.UserID,
 			&article.Title,
 			&article.Content,
 			&article.Created,
@@ -143,7 +146,7 @@ func FindArticlesByAll(keyword string) ([]models.Article, error) {
 	}
 
 	query := `
-		SELECT id, title, content, created, updated, deleted 
+		SELECT id, user_id, title, content, created, updated, deleted 
 		FROM article 
 		WHERE (title LIKE ? OR content LIKE ?) AND deleted IS NULL
 		ORDER BY updated DESC
@@ -162,6 +165,7 @@ func FindArticlesByAll(keyword string) ([]models.Article, error) {
 		var article models.Article
 		err := rows.Scan(
 			&article.ID,
+			&article.UserID,
 			&article.Title,
 			&article.Content,
 			&article.Created,
@@ -184,8 +188,8 @@ func FindArticlesByAll(keyword string) ([]models.Article, error) {
 	return articles, nil
 }
 
-// UpdateArticle updates an existing article
-func UpdateArticle(id int, title, content string) error {
+// UpdateArticle updates an existing article (with ownership check)
+func UpdateArticle(id int, userID int, title, content string) error {
 	if DB == nil {
 		return fmt.Errorf("database connection not initialized")
 	}
@@ -193,10 +197,10 @@ func UpdateArticle(id int, title, content string) error {
 	query := `
 		UPDATE article 
 		SET title = ?, content = ?, updated = NOW() 
-		WHERE id = ? AND deleted IS NULL
+		WHERE id = ? AND user_id = ? AND deleted IS NULL
 	`
 
-	result, err := DB.Exec(query, title, content, id)
+	result, err := DB.Exec(query, title, content, id, userID)
 	if err != nil {
 		log.Printf("Error updating article: %v", err)
 		return fmt.Errorf("failed to update article: %v", err)
@@ -216,17 +220,17 @@ func UpdateArticle(id int, title, content string) error {
 }
 
 // CreateArticle creates a new article in the database
-func CreateArticle(title, content string) (int, error) {
+func CreateArticle(userID int, title, content string) (int, error) {
 	if DB == nil {
 		return 0, fmt.Errorf("database connection not initialized")
 	}
 
 	query := `
-		INSERT INTO article (title, content, created, updated) 
-		VALUES (?, ?, NOW(), NOW())
+		INSERT INTO article (user_id, title, content, created, updated) 
+		VALUES (?, ?, ?, NOW(), NOW())
 	`
 
-	result, err := DB.Exec(query, title, content)
+	result, err := DB.Exec(query, userID, title, content)
 	if err != nil {
 		log.Printf("Error creating article: %v", err)
 		return 0, fmt.Errorf("failed to create article: %v", err)
@@ -241,8 +245,8 @@ func CreateArticle(title, content string) (int, error) {
 	return int(id), nil
 }
 
-// DeleteArticle performs a soft delete on an article by setting the deleted timestamp
-func DeleteArticle(id int) error {
+// DeleteArticle performs a soft delete on an article by setting the deleted timestamp (with ownership check)
+func DeleteArticle(id int, userID int) error {
 	if DB == nil {
 		return fmt.Errorf("database connection not initialized")
 	}
@@ -250,10 +254,10 @@ func DeleteArticle(id int) error {
 	query := `
 		UPDATE article 
 		SET deleted = NOW() 
-		WHERE id = ? AND deleted IS NULL
+		WHERE id = ? AND user_id = ? AND deleted IS NULL
 	`
 
-	result, err := DB.Exec(query, id)
+	result, err := DB.Exec(query, id, userID)
 	if err != nil {
 		log.Printf("Error deleting article: %v", err)
 		return fmt.Errorf("failed to delete article: %v", err)

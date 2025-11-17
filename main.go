@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"personalnote.eu/simple-go-api/handlers"
 	"personalnote.eu/simple-go-api/router"
 	"personalnote.eu/simple-go-api/utils"
 )
@@ -17,6 +18,9 @@ func main() {
 		defer utils.CloseDB()
 	}
 
+	// Initialize OAuth
+	handlers.InitOAuth()
+
 	// Setup all routes
 	router.SetupRoutes()
 
@@ -28,6 +32,7 @@ func main() {
 	log.Printf("   POST /user - User management")
 	log.Printf("   GET  /articles - List all articles")
 	log.Printf("   GET  /article/{id} - Get article by ID")
+	log.Printf("   GET  /auth/google/login - Google OAuth login")
 
 	if err := http.ListenAndServe(addr, nil); err != nil {
 		log.Fatalf("❌ Could not start server: %s", err)

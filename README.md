@@ -126,6 +126,64 @@ Press `Ctrl+C` in the terminal
 
 **That's it! Your API is ready to use. 🚀**
 
+## 🔐 Google OAuth Authentication
+
+The application uses Google OAuth 2.0 for authentication. All article creation, editing, and deletion operations require authentication.
+
+### Setup Google OAuth
+
+1. **Create a Google Cloud Project:**
+   - Go to [Google Cloud Console](https://console.cloud.google.com/)
+   - Create a new project or select an existing one
+
+2. **Enable Google+ API:**
+   - Navigate to "APIs & Services" > "Library"
+   - Search for "Google+ API" and enable it
+
+3. **Create OAuth 2.0 Credentials:**
+   - Go to "APIs & Services" > "Credentials"
+   - Click "Create Credentials" > "OAuth client ID"
+   - Choose "Web application"
+   - Add authorized redirect URI: `http://localhost:8080/auth/google/callback`
+   - For production, add your production URL
+
+4. **Configure Environment Variables:**
+   Create a `.env` file in the project root (or set environment variables):
+   ```bash
+   GOOGLE_CLIENT_ID=your_google_client_id_here
+   GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+   GOOGLE_REDIRECT_URL=http://localhost:8080/auth/google/callback
+   FRONTEND_URL=http://localhost:3000
+   JWT_SECRET=your_super_secret_jwt_key_min_32_characters
+   ```
+
+5. **Restart the Application:**
+   ```bash
+   docker compose down
+   docker compose --profile frontend up -d
+   ```
+
+### How Authentication Works
+
+1. Users click "Sign in with Google" on the login page
+2. They're redirected to Google's OAuth consent screen
+3. After approval, Google redirects back to the API with an auth code
+4. The API exchanges the code for user info and generates a JWT token
+5. The frontend stores the token and includes it in all protected requests
+6. Article operations (create/edit/delete) require valid authentication
+
+### Protected Endpoints
+
+- **POST** `/articles` - Create new article (requires auth)
+- **PUT** `/article/{id}` - Update article (requires auth)
+- **DELETE** `/article/{id}` - Delete article (requires auth)
+
+### Public Endpoints
+
+- **GET** `/articles` - List all articles
+- **GET** `/article/{id}` - Get article details
+- **GET** `/article/filter/{mode}/{keyword}` - Search articles
+
 ## 🌐 CORS configuration
 
 The API now includes built-in CORS handling so the React frontend (or any external client) can call it directly.

@@ -1,8 +1,11 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './context/AuthContext.jsx';
 import App from './App.jsx';
 import ArticleDetail from './pages/ArticleDetail.jsx';
 import ArticleEdit from './pages/ArticleEdit.jsx';
 import ArticleNew from './pages/ArticleNew.jsx';
+import Login from './pages/Login.jsx';
+import AuthCallback from './pages/AuthCallback.jsx';
 
 // 404 Not Found page
 function NotFoundPage() {
@@ -14,13 +17,26 @@ function NotFoundPage() {
   );
 }
 
+// Protected route wrapper
+function ProtectedRoute({ children }) {
+  const { isAuthenticated, loading } = useAuth();
+  
+  if (loading) {
+    return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>;
+  }
+  
+  return isAuthenticated ? children : <Navigate to="/login" />;
+}
+
 export default function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<App />} />
-      <Route path="/article/new" element={<ArticleNew />} />
-      <Route path="/article/:id" element={<ArticleDetail />} />
-      <Route path="/article/:id/edit" element={<ArticleEdit />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
+      <Route path="/" element={<ProtectedRoute><App /></ProtectedRoute>} />
+      <Route path="/article/new" element={<ProtectedRoute><ArticleNew /></ProtectedRoute>} />
+      <Route path="/article/:id" element={<ProtectedRoute><ArticleDetail /></ProtectedRoute>} />
+      <Route path="/article/:id/edit" element={<ProtectedRoute><ArticleEdit /></ProtectedRoute>} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

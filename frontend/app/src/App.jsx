@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, memo } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from './context/AuthContext.jsx';
 import ArticleList from './components/ArticleList.jsx';
 import './App.css';
 
@@ -93,6 +94,7 @@ const Sidebar = memo(({ loading, articles, sidebarEntries, isCompactLayout }) =>
 Sidebar.displayName = 'Sidebar';
 
 export default function App() {
+  const { logout, user } = useAuth();
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -232,20 +234,42 @@ export default function App() {
 
         <main className="app__main">
           <header className="app__header">
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <button
-                type="button"
-                className="secondary"
-                onClick={loadAllArticles}
-                disabled={loading}
-              >
-                Refresh
-              </button>
-              <Link to="/article/new" style={{ textDecoration: 'none' }}>
-                <button type="button">
-                  New Article
+            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+              <div style={{ display: 'flex', gap: '0.75rem' }}>
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={loadAllArticles}
+                  disabled={loading}
+                >
+                  Refresh
                 </button>
-              </Link>
+                <Link to="/article/new" style={{ textDecoration: 'none' }}>
+                  <button type="button">
+                    New Article
+                  </button>
+                </Link>
+              </div>
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                {user && (
+                  <div style={{ textAlign: 'right', fontSize: '0.85rem', lineHeight: '1.3' }}>
+                    <div style={{ fontWeight: '500', color: '#333' }}>
+                      {user.name || user.email}
+                    </div>
+                    <div style={{ color: '#666', fontSize: '0.8rem' }}>
+                      {user.email}
+                    </div>
+                  </div>
+                )}
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={logout}
+                  style={{ padding: '0.5rem 1rem' }}
+                >
+                  Logout
+                </button>
+              </div>
             </div>
           </header>
 

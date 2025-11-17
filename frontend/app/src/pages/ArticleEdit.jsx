@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { getAuthHeaders } from '../utils/api.js';
 import './ArticleEdit.css';
 
 const API_BASE_URL = 'http://localhost:8080';
@@ -54,9 +55,7 @@ export default function ArticleEdit() {
 
       const response = await fetch(`${API_BASE_URL}/article/${id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           title: title.trim(),
           content: content.trim(),

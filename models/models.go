@@ -10,6 +10,7 @@ type Response struct {
 // Article represents an article entity from the database
 type Article struct {
 	ID      int        `json:"id" db:"id"`
+	UserID  int        `json:"user_id" db:"user_id"`
 	Title   string     `json:"title" db:"title"`
 	Content string     `json:"content" db:"content"`
 	Created *time.Time `json:"created" db:"created"`

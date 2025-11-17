@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { getAuthHeaders } from '../utils/api.js';
+import { useAuth } from '../context/AuthContext.jsx';
 import '../App.css';
 
 const normalizeBaseUrl = (value) => {
@@ -16,6 +18,7 @@ const API_BASE_URL = normalizeBaseUrl(import.meta.env.VITE_API_BASE_URL);
 export default function ArticleDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -32,6 +35,7 @@ export default function ArticleDetail() {
     try {
       const response = await fetch(`${API_BASE_URL}/article/${id}`, {
         method: 'DELETE',
+        headers: getAuthHeaders(),
       });
 
       if (!response.ok) {
@@ -119,37 +123,39 @@ export default function ArticleDetail() {
           <Link to="/" className="secondary" style={{ display: 'inline-block' }}>
             ← Back to Articles
           </Link>
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <Link 
-              to={`/article/${id}/edit`} 
-              style={{ 
-                padding: '0.5rem 1rem', 
-                background: 'var(--accent-color)', 
-                color: 'white', 
-                textDecoration: 'none', 
-                borderRadius: '4px',
-                transition: 'all 0.2s'
-              }}
-            >
-              Edit Article
-            </Link>
-            <button
-              onClick={handleDelete}
-              disabled={deleting}
-              style={{
-                padding: '0.5rem 1rem',
-                background: '#dc2626',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: deleting ? 'not-allowed' : 'pointer',
-                opacity: deleting ? 0.6 : 1,
-                transition: 'all 0.2s'
-              }}
-            >
-              {deleting ? 'Deleting...' : 'Delete'}
-            </button>
-          </div>
+          {user && article && user.id === article.user_id && (
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <Link 
+                to={`/article/${id}/edit`} 
+                style={{ 
+                  padding: '0.5rem 1rem', 
+                  background: 'var(--accent-color)', 
+                  color: 'white', 
+                  textDecoration: 'none', 
+                  borderRadius: '4px',
+                  transition: 'all 0.2s'
+                }}
+              >
+                Edit Article
+              </Link>
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                style={{
+                  padding: '0.5rem 1rem',
+                  background: '#dc2626',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: deleting ? 'not-allowed' : 'pointer',
+                  opacity: deleting ? 0.6 : 1,
+                  transition: 'all 0.2s'
+                }}
+              >
+                {deleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          )}
         </div>
 
         <article className="article-card" style={{ marginTop: '1.5rem' }}>

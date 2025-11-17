@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { getAuthHeaders } from '../utils/api.js';
 import './ArticleEdit.css';
 
 function ArticleNew() {
@@ -23,9 +24,7 @@ function ArticleNew() {
     try {
       const response = await fetch('http://localhost:8080/articles', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           title: title.trim(),
           content: content.trim(),

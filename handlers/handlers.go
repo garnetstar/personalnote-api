@@ -5,14 +5,56 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
+	"github.com/golang-jwt/jwt/v5"
+	"personalnote.eu/simple-go-api/middleware"
 	"personalnote.eu/simple-go-api/models"
 	"personalnote.eu/simple-go-api/utils"
 )
 
 var counter int
+
+// checkAuth validates the JWT token in the request and returns the user ID
+func checkAuth(w http.ResponseWriter, r *http.Request) (int, bool) {
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		http.Error(w, `{"error":"Authentication required"}`, http.StatusUnauthorized)
+		return 0, false
+	}
+
+	parts := strings.Split(authHeader, " ")
+	if len(parts) != 2 || parts[0] != "Bearer" {
+		http.Error(w, `{"error":"Invalid authorization header"}`, http.StatusUnauthorized)
+		return 0, false
+	}
+
+	tokenString := parts[1]
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		log.Println("JWT_SECRET not set")
+		http.Error(w, `{"error":"Server configuration error"}`, http.StatusInternalServerError)
+		return 0, false
+	}
+
+	claims := &middleware.Claims{}
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method")
+		}
+		return []byte(jwtSecret), nil
+	})
+
+	if err != nil || !token.Valid {
+		log.Printf("Invalid token: %v", err)
+		http.Error(w, `{"error":"Invalid or expired token"}`, http.StatusUnauthorized)
+		return 0, false
+	}
+
+	return claims.UserID, true
+}
 
 // HelloHandler handles the root endpoint
 func HelloHandler(w http.ResponseWriter, r *http.Request) {
@@ -59,6 +101,12 @@ func ArticlesHandler(w http.ResponseWriter, r *http.Request) {
 		utils.SendJSONResponse(w, http.StatusOK, response)
 
 	case http.MethodPost:
+		// Check authentication for POST
+		userID, authenticated := checkAuth(w, r)
+		if !authenticated {
+			return
+		}
+
 		// Parse request body
 		var req struct {
 			Title   string `json:"title"`
@@ -78,8 +126,8 @@ func ArticlesHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Create article
-		id, err := utils.CreateArticle(req.Title, req.Content)
+		// Create article with user_id
+		id, err := utils.CreateArticle(userID, req.Title, req.Content)
 		if err != nil {
 			log.Printf("Error creating article: %v", err)
 			utils.SendErrorResponse(w, http.StatusInternalServerError,
@@ -207,6 +255,12 @@ func ArticleFindHandler(w http.ResponseWriter, r *http.Request) {
 
 // UpdateArticleHandler handles PUT requests to update an article
 func UpdateArticleHandler(w http.ResponseWriter, r *http.Request) {
+	// Check authentication for PUT
+	userID, authenticated := checkAuth(w, r)
+	if !authenticated {
+		return
+	}
+
 	// Extract article ID from URL path
 	// Expected format: /article/{id}
 	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
@@ -244,11 +298,11 @@ func UpdateArticleHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Update article in database
-	if err := utils.UpdateArticle(id, article.Title, article.Content); err != nil {
+	// Update article in database (with ownership check)
+	if err := utils.UpdateArticle(id, userID, article.Title, article.Content); err != nil {
 		if strings.Contains(err.Error(), "not found") {
-			utils.SendErrorResponse(w, http.StatusNotFound,
-				"Article not found", fmt.Sprintf("Article with ID %d not found", id))
+			utils.SendErrorResponse(w, http.StatusForbidden,
+				"Access denied", "Article not found or you don't have permission to update it")
 		} else {
 			log.Printf("Error updating article: %v", err)
 			utils.SendErrorResponse(w, http.StatusInternalServerError,
@@ -272,6 +326,12 @@ func UpdateArticleHandler(w http.ResponseWriter, r *http.Request) {
 
 // DeleteArticleHandler handles DELETE requests to soft delete an article
 func DeleteArticleHandler(w http.ResponseWriter, r *http.Request) {
+	// Check authentication for DELETE
+	userID, authenticated := checkAuth(w, r)
+	if !authenticated {
+		return
+	}
+
 	// Extract article ID from URL path
 	// Expected format: /article/{id}
 	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
@@ -288,11 +348,11 @@ func DeleteArticleHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Perform soft delete
-	if err := utils.DeleteArticle(id); err != nil {
+	// Perform soft delete (with ownership check)
+	if err := utils.DeleteArticle(id, userID); err != nil {
 		if strings.Contains(err.Error(), "not found") {
-			utils.SendErrorResponse(w, http.StatusNotFound,
-				"Article not found", fmt.Sprintf("Article with ID %d not found or already deleted", id))
+			utils.SendErrorResponse(w, http.StatusForbidden,
+				"Access denied", "Article not found or you don't have permission to delete it")
 		} else {
 			log.Printf("Error deleting article: %v", err)
 			utils.SendErrorResponse(w, http.StatusInternalServerError,
