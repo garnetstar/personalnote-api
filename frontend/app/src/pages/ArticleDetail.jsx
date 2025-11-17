@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import '../App.css';
@@ -15,9 +15,36 @@ const API_BASE_URL = normalizeBaseUrl(import.meta.env.VITE_API_BASE_URL);
 
 export default function ArticleDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this article? This action cannot be undone.')) {
+      return;
+    }
+
+    setDeleting(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/article/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || errorData.message || 'Failed to delete article');
+      }
+
+      navigate('/');
+    } catch (err) {
+      setError(err.message);
+      setDeleting(false);
+    }
+  };
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -92,19 +119,37 @@ export default function ArticleDetail() {
           <Link to="/" className="secondary" style={{ display: 'inline-block' }}>
             ← Back to Articles
           </Link>
-          <Link 
-            to={`/article/${id}/edit`} 
-            style={{ 
-              padding: '0.5rem 1rem', 
-              background: 'var(--accent-color)', 
-              color: 'white', 
-              textDecoration: 'none', 
-              borderRadius: '4px',
-              transition: 'all 0.2s'
-            }}
-          >
-            Edit Article
-          </Link>
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <Link 
+              to={`/article/${id}/edit`} 
+              style={{ 
+                padding: '0.5rem 1rem', 
+                background: 'var(--accent-color)', 
+                color: 'white', 
+                textDecoration: 'none', 
+                borderRadius: '4px',
+                transition: 'all 0.2s'
+              }}
+            >
+              Edit Article
+            </Link>
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              style={{
+                padding: '0.5rem 1rem',
+                background: '#dc2626',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: deleting ? 'not-allowed' : 'pointer',
+                opacity: deleting ? 0.6 : 1,
+                transition: 'all 0.2s'
+              }}
+            >
+              {deleting ? 'Deleting...' : 'Delete'}
+            </button>
+          </div>
         </div>
 
         <article className="article-card" style={{ marginTop: '1.5rem' }}>
@@ -112,7 +157,7 @@ export default function ArticleDetail() {
             <span className="article-card__id">#{article.id ?? '—'}</span>
             <h1 style={{ margin: 0 }}>{article.title || 'Untitled article'}</h1>
             <span className="article-card__updated" title={`Last updated: ${article.updated ?? 'unknown'}`}>
-              {article.updated ? new Date(article.updated).toLocaleString() : '—'}
+              {article.updated ? new Date(article.updated).toLocaleString('cs-CZ') : '—'}
             </span>
           </header>
 

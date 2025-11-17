@@ -103,13 +103,15 @@ func ArticlesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// ArticleHandler handles both GET and PUT requests for articles
+// ArticleHandler handles GET, PUT, and DELETE requests for articles
 func ArticleHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		ArticleByIDHandler(w, r)
 	case http.MethodPut:
 		UpdateArticleHandler(w, r)
+	case http.MethodDelete:
+		DeleteArticleHandler(w, r)
 	default:
 		utils.SendErrorResponse(w, http.StatusMethodNotAllowed,
 			"Method not allowed", fmt.Sprintf("Method %s is not supported for this endpoint", r.Method))
@@ -266,4 +268,42 @@ func UpdateArticleHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("✅ Successfully updated article: %s (ID: %d)", updatedArticle.Title, id)
 	utils.SendJSONResponse(w, http.StatusOK, updatedArticle)
+}
+
+// DeleteArticleHandler handles DELETE requests to soft delete an article
+func DeleteArticleHandler(w http.ResponseWriter, r *http.Request) {
+	// Extract article ID from URL path
+	// Expected format: /article/{id}
+	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	if len(parts) < 2 {
+		utils.SendErrorResponse(w, http.StatusBadRequest,
+			"Invalid URL", "Expected format: /article/{id}")
+		return
+	}
+
+	id, err := strconv.Atoi(parts[1])
+	if err != nil {
+		utils.SendErrorResponse(w, http.StatusBadRequest,
+			"Invalid ID", "Article ID must be a number")
+		return
+	}
+
+	// Perform soft delete
+	if err := utils.DeleteArticle(id); err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			utils.SendErrorResponse(w, http.StatusNotFound,
+				"Article not found", fmt.Sprintf("Article with ID %d not found or already deleted", id))
+		} else {
+			log.Printf("Error deleting article: %v", err)
+			utils.SendErrorResponse(w, http.StatusInternalServerError,
+				"Database error", "Failed to delete article")
+		}
+		return
+	}
+
+	log.Printf("✅ Successfully deleted article ID: %d", id)
+	utils.SendJSONResponse(w, http.StatusOK, map[string]interface{}{
+		"id":      id,
+		"message": "Article deleted successfully",
+	})
 }

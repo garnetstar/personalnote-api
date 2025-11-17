@@ -18,7 +18,7 @@ func GetAllArticles() ([]models.Article, error) {
 		SELECT id, title, content, updated, deleted 
 		FROM article 
 		WHERE deleted IS NULL 
-		ORDER BY id DESC
+		ORDER BY updated DESC, id DESC
 	`
 
 	rows, err := DB.Query(query)
@@ -235,4 +235,35 @@ func CreateArticle(title, content string) (int, error) {
 
 	log.Printf("✨ Created new article ID %d: %s", id, title)
 	return int(id), nil
+}
+
+// DeleteArticle performs a soft delete on an article by setting the deleted timestamp
+func DeleteArticle(id int) error {
+	if DB == nil {
+		return fmt.Errorf("database connection not initialized")
+	}
+
+	query := `
+		UPDATE article 
+		SET deleted = NOW() 
+		WHERE id = ? AND deleted IS NULL
+	`
+
+	result, err := DB.Exec(query, id)
+	if err != nil {
+		log.Printf("Error deleting article: %v", err)
+		return fmt.Errorf("failed to delete article: %v", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to get rows affected: %v", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("article with ID %d not found or already deleted", id)
+	}
+
+	log.Printf("🗑️ Soft deleted article ID %d", id)
+	return nil
 }
