@@ -12,6 +12,7 @@ type Article struct {
 	ID      int        `json:"id" db:"id"`
 	Title   string     `json:"title" db:"title"`
 	Content string     `json:"content" db:"content"`
+	Created *time.Time `json:"created" db:"created"`
 	Updated *time.Time `json:"updated" db:"updated"`
 	Deleted *time.Time `json:"deleted" db:"deleted"`
 }

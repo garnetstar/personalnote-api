@@ -14,7 +14,7 @@ const formatDate = (value) => {
     return value;
   }
 
-  return parsed.toLocaleString();
+  return parsed.toLocaleString('cs-CZ');
 };
 
 const getAnchorId = (article, index) => {
@@ -70,12 +70,20 @@ export default function ArticleList({ articles, loading }) {
                 #{article.id ?? '—'}
               </Link>
               <h3>{article.title || 'Untitled article'}</h3>
-              <span
-                className="article-card__updated"
-                title={`Last updated: ${article.updated ?? 'unknown'}`}
-              >
-                {formatDate(article.updated)}
-              </span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', alignItems: 'flex-end' }}>
+                <span
+                  className="article-card__updated"
+                  title={`Last modified: ${article.updated ?? 'unknown'}`}
+                >
+                  Modified: {formatDate(article.updated)}
+                </span>
+                <span
+                  className="article-card__updated"
+                  title={`Created: ${article.created ?? 'unknown'}`}
+                >
+                  Created: {formatDate(article.created)}
+                </span>
+              </div>
             </header>
 
             {hasContent ? (

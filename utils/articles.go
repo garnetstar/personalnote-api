@@ -15,7 +15,7 @@ func GetAllArticles() ([]models.Article, error) {
 	}
 
 	query := `
-		SELECT id, title, content, updated, deleted 
+		SELECT id, title, content, created, updated, deleted 
 		FROM article 
 		WHERE deleted IS NULL 
 		ORDER BY updated DESC, id DESC
@@ -36,6 +36,7 @@ func GetAllArticles() ([]models.Article, error) {
 			&article.ID,
 			&article.Title,
 			&article.Content,
+			&article.Created,
 			&article.Updated,
 			&article.Deleted,
 		)
@@ -62,7 +63,7 @@ func GetArticleByID(id int) (*models.Article, error) {
 	}
 
 	query := `
-		SELECT id, title, content, updated, deleted 
+		SELECT id, title, content, created, updated, deleted 
 		FROM article 
 		WHERE id = ? AND deleted IS NULL
 	`
@@ -72,6 +73,7 @@ func GetArticleByID(id int) (*models.Article, error) {
 		&article.ID,
 		&article.Title,
 		&article.Content,
+		&article.Created,
 		&article.Updated,
 		&article.Deleted,
 	)
@@ -94,7 +96,7 @@ func FindArticlesByTitle(title string) ([]models.Article, error) {
 	}
 
 	query := `
-		SELECT id, title, content, updated, deleted 
+		SELECT id, title, content, created, updated, deleted 
 		FROM article 
 		WHERE title LIKE ? AND deleted IS NULL
 		ORDER BY updated DESC
@@ -115,6 +117,7 @@ func FindArticlesByTitle(title string) ([]models.Article, error) {
 			&article.ID,
 			&article.Title,
 			&article.Content,
+			&article.Created,
 			&article.Updated,
 			&article.Deleted,
 		)
@@ -140,7 +143,7 @@ func FindArticlesByAll(keyword string) ([]models.Article, error) {
 	}
 
 	query := `
-		SELECT id, title, content, updated, deleted 
+		SELECT id, title, content, created, updated, deleted 
 		FROM article 
 		WHERE (title LIKE ? OR content LIKE ?) AND deleted IS NULL
 		ORDER BY updated DESC
@@ -161,6 +164,7 @@ func FindArticlesByAll(keyword string) ([]models.Article, error) {
 			&article.ID,
 			&article.Title,
 			&article.Content,
+			&article.Created,
 			&article.Updated,
 			&article.Deleted,
 		)
@@ -218,8 +222,8 @@ func CreateArticle(title, content string) (int, error) {
 	}
 
 	query := `
-		INSERT INTO article (title, content, updated) 
-		VALUES (?, ?, NOW())
+		INSERT INTO article (title, content, created, updated) 
+		VALUES (?, ?, NOW(), NOW())
 	`
 
 	result, err := DB.Exec(query, title, content)

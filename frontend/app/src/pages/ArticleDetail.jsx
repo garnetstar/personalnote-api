@@ -156,9 +156,14 @@ export default function ArticleDetail() {
           <header className="article-card__header">
             <span className="article-card__id">#{article.id ?? '—'}</span>
             <h1 style={{ margin: 0 }}>{article.title || 'Untitled article'}</h1>
-            <span className="article-card__updated" title={`Last updated: ${article.updated ?? 'unknown'}`}>
-              {article.updated ? new Date(article.updated).toLocaleString('cs-CZ') : '—'}
-            </span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', alignItems: 'flex-end' }}>
+              <span className="article-card__updated" title={`Last modified: ${article.updated ?? 'unknown'}`}>
+                Modified: {article.updated ? new Date(article.updated).toLocaleString('cs-CZ') : '—'}
+              </span>
+              <span className="article-card__updated" title={`Created: ${article.created ?? 'unknown'}`}>
+                Created: {article.created ? new Date(article.created).toLocaleString('cs-CZ') : '—'}
+              </span>
+            </div>
           </header>
 
           {article.content && article.content.trim() ? (

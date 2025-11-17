@@ -260,7 +260,7 @@ export default function App() {
               </span>
               <span>
                 Last updated:{' '}
-                {lastUpdatedAt ? lastUpdatedAt.toLocaleString() : '—'}
+                {lastUpdatedAt ? lastUpdatedAt.toLocaleString('cs-CZ') : '—'}
               </span>
             </div>
           </section>
