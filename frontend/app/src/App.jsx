@@ -209,13 +209,6 @@ export default function App() {
     });
   };
 
-  const handleResetFilters = () => {
-    setKeyword('');
-    setFilterMode('all');
-    setError(null);
-    loadAllArticles();
-  };
-
   const sidebarEntries = useMemo(
     () =>
       articles.map((article, index) => ({
@@ -292,19 +285,7 @@ export default function App() {
                 Search
               </button>
             </form>
-
-            <div className="toolbar toolbar--actions">
-              <button type="button" className="secondary" onClick={handleResetFilters} disabled={loading}>
-                Clear filters
-              </button>
-            </div>
           </section>
-
-          <div className={`status-bar${error ? ' status-bar--error' : ''}`} role="status" aria-live="polite">
-            <span className="status-chip">{loading ? 'Loading' : error ? 'Error' : 'Ready'}</span>
-            {loading && <span className="loader" aria-hidden="true" />}
-            <span className="message">{error || status}</span>
-          </div>
 
           <ArticleList articles={articles} loading={loading} />
         </main>
