@@ -109,17 +109,12 @@
   flex-direction: column;
   gap: 0.2rem;
   padding: 0.7rem 0.85rem;
-  color: #ffffff !important;
   text-decoration: none;
   background: rgba(96, 165, 250, 0.15);
   border-radius: 4px;
   transition: background 0.18s ease, transform 0.18s ease;
   font-size: 0.95rem;
   min-height: 3rem;
-}
-
-.app__sidebar-link * {
-  color: #ffffff !important;
 }
 
 .app__sidebar-link:hover,
@@ -133,17 +128,22 @@
   font-weight: 600;
   line-height: 1.4;
   word-break: break-word;
-  color: #ffffff !important;
+  color: #ffffff;
   opacity: 1;
   font-size: 0.95rem;
 }
 
 .app__sidebar-date {
   font-size: 0.75rem;
-  color: rgba(203, 213, 225, 0.95) !important;
+  color: #94a3b8 !important;
   opacity: 1;
   display: block;
   margin-top: 0.25rem;
+}
+
+/* Override Link component's text color for date spans */
+a.app__sidebar-link .app__sidebar-date {
+  color: #94a3b8 !important;
 }
 
 .app__main {

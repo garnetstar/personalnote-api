@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import App from './App.jsx';
 import ArticleDetail from './pages/ArticleDetail.jsx';
+import ArticleEdit from './pages/ArticleEdit.jsx';
 
 // 404 Not Found page
 function NotFoundPage() {
@@ -17,6 +18,7 @@ export default function AppRoutes() {
     <Routes>
       <Route path="/" element={<App />} />
       <Route path="/article/:id" element={<ArticleDetail />} />
+      <Route path="/article/:id/edit" element={<ArticleEdit />} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

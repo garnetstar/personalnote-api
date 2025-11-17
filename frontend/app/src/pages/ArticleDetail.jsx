@@ -88,9 +88,24 @@ export default function ArticleDetail() {
   return (
     <div className="app">
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-        <Link to="/" className="secondary" style={{ display: 'inline-block', marginBottom: '2rem' }}>
-          ← Back to Articles
-        </Link>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+          <Link to="/" className="secondary" style={{ display: 'inline-block' }}>
+            ← Back to Articles
+          </Link>
+          <Link 
+            to={`/article/${id}/edit`} 
+            style={{ 
+              padding: '0.5rem 1rem', 
+              background: 'var(--accent-color)', 
+              color: 'white', 
+              textDecoration: 'none', 
+              borderRadius: '4px',
+              transition: 'all 0.2s'
+            }}
+          >
+            Edit Article
+          </Link>
+        </div>
 
         <article className="article-card" style={{ marginTop: '1.5rem' }}>
           <header className="article-card__header">

@@ -94,7 +94,7 @@ func FindArticlesByTitle(title string) ([]models.Article, error) {
 	}
 
 	query := `
-		SELECT id, title, content 
+		SELECT id, title, content, updated, deleted 
 		FROM article 
 		WHERE title LIKE ? AND deleted IS NULL
 		ORDER BY updated DESC
@@ -115,6 +115,8 @@ func FindArticlesByTitle(title string) ([]models.Article, error) {
 			&article.ID,
 			&article.Title,
 			&article.Content,
+			&article.Updated,
+			&article.Deleted,
 		)
 		if err != nil {
 			log.Printf("Error scanning row: %v", err)
@@ -138,7 +140,7 @@ func FindArticlesByAll(keyword string) ([]models.Article, error) {
 	}
 
 	query := `
-		SELECT id, title, content 
+		SELECT id, title, content, updated, deleted 
 		FROM article 
 		WHERE (title LIKE ? OR content LIKE ?) AND deleted IS NULL
 		ORDER BY updated DESC
@@ -159,6 +161,8 @@ func FindArticlesByAll(keyword string) ([]models.Article, error) {
 			&article.ID,
 			&article.Title,
 			&article.Content,
+			&article.Updated,
+			&article.Deleted,
 		)
 		if err != nil {
 			log.Printf("Error scanning row: %v", err)
@@ -174,4 +178,35 @@ func FindArticlesByAll(keyword string) ([]models.Article, error) {
 
 	log.Printf("🔍 Found %d articles matching title '%s'", len(articles), keyword)
 	return articles, nil
+}
+
+// UpdateArticle updates an existing article
+func UpdateArticle(id int, title, content string) error {
+	if DB == nil {
+		return fmt.Errorf("database connection not initialized")
+	}
+
+	query := `
+		UPDATE article 
+		SET title = ?, content = ?, updated = NOW() 
+		WHERE id = ? AND deleted IS NULL
+	`
+
+	result, err := DB.Exec(query, title, content, id)
+	if err != nil {
+		log.Printf("Error updating article: %v", err)
+		return fmt.Errorf("failed to update article: %v", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to get rows affected: %v", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("article with ID %d not found", id)
+	}
+
+	log.Printf("✏️ Updated article ID %d: %s", id, title)
+	return nil
 }

@@ -16,5 +16,5 @@ func SetupRoutes() {
 	register("/", handlers.HelloHandler)
 	register("/articles", handlers.ArticlesHandler)
 	register("/article/filter/", handlers.ArticleFindHandler)
-	register("/article/", handlers.ArticleByIDHandler)
+	register("/article/", handlers.ArticleHandler)
 }

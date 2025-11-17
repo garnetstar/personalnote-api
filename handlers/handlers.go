@@ -62,13 +62,21 @@ func ArticlesHandler(w http.ResponseWriter, r *http.Request) {
 	utils.SendJSONResponse(w, http.StatusOK, response)
 }
 
+// ArticleHandler handles both GET and PUT requests for articles
+func ArticleHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		ArticleByIDHandler(w, r)
+	case http.MethodPut:
+		UpdateArticleHandler(w, r)
+	default:
+		utils.SendErrorResponse(w, http.StatusMethodNotAllowed,
+			"Method not allowed", fmt.Sprintf("Method %s is not supported for this endpoint", r.Method))
+	}
+}
+
 // ArticleByIDHandler handles requests for getting a specific article by ID
 func ArticleByIDHandler(w http.ResponseWriter, r *http.Request) {
-	// Only accept GET requests
-	if !utils.ValidateHTTPMethod(w, r, http.MethodGet) {
-		return
-	}
-
 	// Extract ID from URL path
 	// Expected format: /article/123
 	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
@@ -152,4 +160,69 @@ func ArticleFindHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	utils.SendJSONResponse(w, http.StatusOK, article)
+}
+
+// UpdateArticleHandler handles PUT requests to update an article
+func UpdateArticleHandler(w http.ResponseWriter, r *http.Request) {
+	// Extract article ID from URL path
+	// Expected format: /article/{id}
+	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	if len(parts) < 2 {
+		utils.SendErrorResponse(w, http.StatusBadRequest,
+			"Invalid URL", "Expected format: /article/{id}")
+		return
+	}
+
+	id, err := strconv.Atoi(parts[1])
+	if err != nil {
+		utils.SendErrorResponse(w, http.StatusBadRequest,
+			"Invalid ID", "Article ID must be a number")
+		return
+	}
+
+	// Parse request body
+	var article models.Article
+	if err := json.NewDecoder(r.Body).Decode(&article); err != nil {
+		utils.SendErrorResponse(w, http.StatusBadRequest,
+			"Invalid JSON", "Failed to parse request body")
+		return
+	}
+
+	// Validate required fields
+	if article.Title == "" {
+		utils.SendErrorResponse(w, http.StatusBadRequest,
+			"Validation error", "Title is required")
+		return
+	}
+
+	if article.Content == "" {
+		utils.SendErrorResponse(w, http.StatusBadRequest,
+			"Validation error", "Content is required")
+		return
+	}
+
+	// Update article in database
+	if err := utils.UpdateArticle(id, article.Title, article.Content); err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			utils.SendErrorResponse(w, http.StatusNotFound,
+				"Article not found", fmt.Sprintf("Article with ID %d not found", id))
+		} else {
+			log.Printf("Error updating article: %v", err)
+			utils.SendErrorResponse(w, http.StatusInternalServerError,
+				"Database error", "Failed to update article")
+		}
+		return
+	}
+
+	// Fetch updated article
+	updatedArticle, err := utils.GetArticleByID(id)
+	if err != nil {
+		log.Printf("Error fetching updated article: %v", err)
+		utils.SendErrorResponse(w, http.StatusInternalServerError,
+			"Database error", "Article updated but failed to retrieve")
+		return
+	}
+
+	log.Printf("✅ Successfully updated article: %s (ID: %d)", updatedArticle.Title, id)
+	utils.SendJSONResponse(w, http.StatusOK, updatedArticle)
 }
