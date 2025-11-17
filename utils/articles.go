@@ -210,3 +210,29 @@ func UpdateArticle(id int, title, content string) error {
 	log.Printf("✏️ Updated article ID %d: %s", id, title)
 	return nil
 }
+
+// CreateArticle creates a new article in the database
+func CreateArticle(title, content string) (int, error) {
+	if DB == nil {
+		return 0, fmt.Errorf("database connection not initialized")
+	}
+
+	query := `
+		INSERT INTO article (title, content, updated) 
+		VALUES (?, ?, NOW())
+	`
+
+	result, err := DB.Exec(query, title, content)
+	if err != nil {
+		log.Printf("Error creating article: %v", err)
+		return 0, fmt.Errorf("failed to create article: %v", err)
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, fmt.Errorf("failed to get last insert ID: %v", err)
+	}
+
+	log.Printf("✨ Created new article ID %d: %s", id, title)
+	return int(id), nil
+}

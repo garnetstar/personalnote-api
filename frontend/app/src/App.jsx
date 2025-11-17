@@ -232,14 +232,21 @@ export default function App() {
 
         <main className="app__main">
           <header className="app__header">
-            <button
-              type="button"
-              className="secondary"
-              onClick={loadAllArticles}
-              disabled={loading}
-            >
-              Refresh
-            </button>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <button
+                type="button"
+                className="secondary"
+                onClick={loadAllArticles}
+                disabled={loading}
+              >
+                Refresh
+              </button>
+              <Link to="/article/new" style={{ textDecoration: 'none' }}>
+                <button type="button">
+                  New Article
+                </button>
+              </Link>
+            </div>
           </header>
 
           <section className="stat-card" aria-live="polite">

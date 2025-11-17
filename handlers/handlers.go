@@ -30,36 +30,77 @@ func HelloHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// ArticlesHandler handles requests for listing all articles
+// ArticlesHandler handles requests for listing all articles (GET) and creating new articles (POST)
 func ArticlesHandler(w http.ResponseWriter, r *http.Request) {
-	// Only accept GET requests
-	if !utils.ValidateHTTPMethod(w, r, http.MethodGet) {
-		return
+	switch r.Method {
+	case http.MethodGet:
+		log.Printf("📚 Fetching all articles from database")
+
+		// Get articles from database
+		articles, err := utils.GetAllArticles()
+		if err != nil {
+			log.Printf("Error fetching articles: %v", err)
+			utils.SendErrorResponse(w, http.StatusInternalServerError,
+				"Database error", "Failed to retrieve articles from database")
+			return
+		}
+
+		// Create response
+		response := models.ArticleListResponse{
+			Articles: articles,
+			Count:    len(articles),
+			Message:  fmt.Sprintf("Successfully retrieved %d articles", len(articles)),
+		}
+
+		// Log success
+		log.Printf("✅ Successfully fetched %d articles", len(articles))
+
+		// Send JSON response
+		utils.SendJSONResponse(w, http.StatusOK, response)
+
+	case http.MethodPost:
+		// Parse request body
+		var req struct {
+			Title   string `json:"title"`
+			Content string `json:"content"`
+		}
+
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			utils.SendErrorResponse(w, http.StatusBadRequest,
+				"Invalid request body", "Failed to parse JSON")
+			return
+		}
+
+		// Validate input
+		if req.Title == "" {
+			utils.SendErrorResponse(w, http.StatusBadRequest,
+				"Validation error", "Title is required")
+			return
+		}
+
+		// Create article
+		id, err := utils.CreateArticle(req.Title, req.Content)
+		if err != nil {
+			log.Printf("Error creating article: %v", err)
+			utils.SendErrorResponse(w, http.StatusInternalServerError,
+				"Database error", "Failed to create article")
+			return
+		}
+
+		// Return the created article with its ID
+		response := map[string]interface{}{
+			"id":      id,
+			"title":   req.Title,
+			"content": req.Content,
+			"message": "Article created successfully",
+		}
+
+		utils.SendJSONResponse(w, http.StatusCreated, response)
+
+	default:
+		utils.SendErrorResponse(w, http.StatusMethodNotAllowed,
+			"Method not allowed", fmt.Sprintf("Method %s is not supported for this endpoint", r.Method))
 	}
-
-	log.Printf("📚 Fetching all articles from database")
-
-	// Get articles from database
-	articles, err := utils.GetAllArticles()
-	if err != nil {
-		log.Printf("Error fetching articles: %v", err)
-		utils.SendErrorResponse(w, http.StatusInternalServerError,
-			"Database error", "Failed to retrieve articles from database")
-		return
-	}
-
-	// Create response
-	response := models.ArticleListResponse{
-		Articles: articles,
-		Count:    len(articles),
-		Message:  fmt.Sprintf("Successfully retrieved %d articles", len(articles)),
-	}
-
-	// Log success
-	log.Printf("✅ Successfully fetched %d articles", len(articles))
-
-	// Send JSON response
-	utils.SendJSONResponse(w, http.StatusOK, response)
 }
 
 // ArticleHandler handles both GET and PUT requests for articles
