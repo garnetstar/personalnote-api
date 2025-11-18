@@ -76,10 +76,16 @@ func HelloHandler(w http.ResponseWriter, r *http.Request) {
 func ArticlesHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		log.Printf("📚 Fetching all articles from database")
+		// Check authentication for GET (to show only user's articles)
+		userID, authenticated := checkAuth(w, r)
+		if !authenticated {
+			return
+		}
 
-		// Get articles from database
-		articles, err := utils.GetAllArticles()
+		log.Printf("📚 Fetching articles for user %d from database", userID)
+
+		// Get articles from database for this user
+		articles, err := utils.GetAllArticles(userID)
 		if err != nil {
 			log.Printf("Error fetching articles: %v", err)
 			utils.SendErrorResponse(w, http.StatusInternalServerError,
@@ -95,7 +101,7 @@ func ArticlesHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Log success
-		log.Printf("✅ Successfully fetched %d articles", len(articles))
+		log.Printf("✅ Successfully fetched %d articles for user %d", len(articles), userID)
 
 		// Send JSON response
 		utils.SendJSONResponse(w, http.StatusOK, response)
@@ -168,6 +174,12 @@ func ArticleHandler(w http.ResponseWriter, r *http.Request) {
 
 // ArticleByIDHandler handles requests for getting a specific article by ID
 func ArticleByIDHandler(w http.ResponseWriter, r *http.Request) {
+	// Check authentication to ensure user can only see their own articles
+	userID, authenticated := checkAuth(w, r)
+	if !authenticated {
+		return
+	}
+
 	// Extract ID from URL path
 	// Expected format: /article/123
 	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
@@ -185,10 +197,10 @@ func ArticleByIDHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("📄 Fetching article with ID: %d", id)
+	log.Printf("📄 Fetching article with ID: %d for user %d", id, userID)
 
-	// Get article from database
-	article, err := utils.GetArticleByID(id)
+	// Get article from database (with user ownership check)
+	article, err := utils.GetArticleByID(id, userID)
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			utils.SendErrorResponse(w, http.StatusNotFound,
@@ -312,7 +324,7 @@ func UpdateArticleHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Fetch updated article
-	updatedArticle, err := utils.GetArticleByID(id)
+	updatedArticle, err := utils.GetArticleByID(id, userID)
 	if err != nil {
 		log.Printf("Error fetching updated article: %v", err)
 		utils.SendErrorResponse(w, http.StatusInternalServerError,

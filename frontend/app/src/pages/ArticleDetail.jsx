@@ -56,7 +56,9 @@ export default function ArticleDetail() {
       setError(null);
 
       try {
-        const response = await fetch(`${API_BASE_URL}/article/${id}`);
+        const response = await fetch(`${API_BASE_URL}/article/${id}`, {
+          headers: getAuthHeaders()
+        });
         const contentType = response.headers.get('content-type') ?? '';
         const data = contentType.includes('application/json')
           ? await response.json()
@@ -118,7 +120,7 @@ export default function ArticleDetail() {
 
   return (
     <div className="app">
-      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+      <div style={{ maxWidth: '100%', margin: '0 auto', padding: '0 2rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
           <Link to="/" className="secondary" style={{ display: 'inline-block' }}>
             ← Back to Articles

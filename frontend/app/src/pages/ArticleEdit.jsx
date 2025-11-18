@@ -20,7 +20,9 @@ export default function ArticleEdit() {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch(`${API_BASE_URL}/article/${id}`);
+        const response = await fetch(`${API_BASE_URL}/article/${id}`, {
+          headers: getAuthHeaders()
+        });
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);

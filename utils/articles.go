@@ -8,8 +8,8 @@ import (
 	"personalnote.eu/simple-go-api/models"
 )
 
-// GetAllArticles retrieves all articles from the database (excluding deleted ones)
-func GetAllArticles() ([]models.Article, error) {
+// GetAllArticles retrieves all articles from the database for a specific user (excluding deleted ones)
+func GetAllArticles(userID int) ([]models.Article, error) {
 	if DB == nil {
 		return nil, fmt.Errorf("database connection not initialized")
 	}
@@ -17,11 +17,11 @@ func GetAllArticles() ([]models.Article, error) {
 	query := `
 		SELECT id, user_id, title, content, created, updated, deleted 
 		FROM article 
-		WHERE deleted IS NULL 
+		WHERE deleted IS NULL AND user_id = ?
 		ORDER BY updated DESC, id DESC
 	`
 
-	rows, err := DB.Query(query)
+	rows, err := DB.Query(query, userID)
 	if err != nil {
 		log.Printf("Error executing query: %v", err)
 		return nil, fmt.Errorf("failed to execute query: %v", err)
@@ -57,8 +57,8 @@ func GetAllArticles() ([]models.Article, error) {
 	return articles, nil
 }
 
-// GetArticleByID retrieves a single article by its ID
-func GetArticleByID(id int) (*models.Article, error) {
+// GetArticleByID retrieves a single article by its ID for a specific user
+func GetArticleByID(id int, userID int) (*models.Article, error) {
 	if DB == nil {
 		return nil, fmt.Errorf("database connection not initialized")
 	}
@@ -66,11 +66,11 @@ func GetArticleByID(id int) (*models.Article, error) {
 	query := `
 		SELECT id, user_id, title, content, created, updated, deleted 
 		FROM article 
-		WHERE id = ? AND deleted IS NULL
+		WHERE id = ? AND user_id = ? AND deleted IS NULL
 	`
 
 	var article models.Article
-	err := DB.QueryRow(query, id).Scan(
+	err := DB.QueryRow(query, id, userID).Scan(
 		&article.ID,
 		&article.UserID,
 		&article.Title,

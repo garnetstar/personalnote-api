@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, memo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from './context/AuthContext.jsx';
+import { getAuthHeaders } from './utils/api.js';
 import ArticleList from './components/ArticleList.jsx';
 import './App.css';
 
@@ -118,7 +119,9 @@ export default function App() {
       setError(null);
 
       try {
-        const response = await fetch(`${baseUrl}${path}`);
+        const response = await fetch(`${baseUrl}${path}`, {
+          headers: getAuthHeaders()
+        });
         const contentType = response.headers.get('content-type') ?? '';
         const payload = contentType.includes('application/json')
           ? await response.json()
