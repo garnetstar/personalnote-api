@@ -4,3 +4,6 @@ data/
 mysql_data/
 README.md
 .env.example
+frontend/
+server
+.github/
