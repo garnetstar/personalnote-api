@@ -22,7 +22,7 @@ function ArticleNew() {
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:8080/articles', {
+      const response = await fetch('/api/articles', {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({

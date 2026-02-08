@@ -8,7 +8,7 @@ import '../App.css';
 
 const normalizeBaseUrl = (value) => {
   if (!value) {
-    return 'http://localhost:8080';
+    return '/api';
   }
   return value.endsWith('/') ? value.slice(0, -1) : value;
 };

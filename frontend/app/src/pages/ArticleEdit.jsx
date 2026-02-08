@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getAuthHeaders } from '../utils/api.js';
 import './ArticleEdit.css';
 
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = '/api';
 
 export default function ArticleEdit() {
   const { id } = useParams();
