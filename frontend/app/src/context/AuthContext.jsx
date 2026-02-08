@@ -21,7 +21,7 @@ export function AuthProvider({ children }) {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch('http://localhost:8080/auth/user', {
+      const response = await fetch('/api/auth/user', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
