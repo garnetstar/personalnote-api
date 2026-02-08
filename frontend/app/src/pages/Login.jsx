@@ -2,7 +2,7 @@ import './Login.css';
 
 export default function Login() {
   const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:8080/auth/google/login';
+    window.location.href = '/api/auth/google/login';
   };
 
   return (
