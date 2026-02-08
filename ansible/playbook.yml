@@ -1,0 +1,166 @@
+---
+- name: Deploy Simple Go API to Production
+  hosts: webservers
+  remote_user: root
+  gather_facts: yes
+  vars:
+    # Default variables (can be overridden by --extra-vars)
+    app_dir: /opt/simple-go-api
+    docker_username: "garnetstar" # Default handle
+    domain_name: "personalnote.eu" # Your Domain
+    email: "machacek.j@gmail.com" # For Let's Encrypt
+    # Default values for required variables (override these in production!)
+    db_user: "api_user"
+    db_password: "changeme"
+    db_root_password: "changeme"
+    jwt_secret: "changeme_secret"
+    app_url: "https://personalnote.eu"
+    google_client_id: "changeme"
+    google_client_secret: "changeme"
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install required system packages
+      apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg-agent
+          - software-properties-common
+          - python3-pip
+          - ufw
+          - nginx
+          - certbot
+          - python3-certbot-nginx
+        state: present
+
+    # --- Docker Installation ---
+    - name: Create directory for Docker key
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Add Docker's official GPG key
+      get_url:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /etc/apt/keyrings/docker.asc
+        mode: '0644'
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable"
+        state: present
+
+    - name: Install Docker Engine and Compose
+      apt:
+        pkg:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+        update_cache: yes
+
+    - name: Ensure Docker service is running
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    # --- Security (UFW) ---
+    - name: Configure UFW (Allow SSH)
+      ufw:
+        rule: allow
+        port: '22'
+        proto: tcp
+
+    - name: Configure UFW (Allow Backend API)
+      ufw:
+        rule: allow
+        port: '8080'
+        proto: tcp
+
+    - name: Configure UFW (Allow Frontend)
+      ufw:
+        rule: allow
+        port: '3000'
+        proto: tcp
+
+    - name: Enable UFW
+      ufw:
+        state: enabled
+
+    - name: Configure UFW (Allow Nginx Full)
+      ufw:
+        rule: allow
+        name: 'Nginx Full'
+
+    # --- SSL & Nginx Configuration ---
+    - name: Obtain SSL certificate
+      command: >
+        certbot certonly --nginx 
+        --non-interactive 
+        --agree-tos 
+        --email {{ email }} 
+        -d {{ domain_name }}
+      args:
+        creates: /etc/letsencrypt/live/{{ domain_name }}/fullchain.pem
+      # Note: This requires domain to already point to server!
+
+    - name: Configure Nginx site
+      template:
+        src: templates/nginx.conf.j2
+        dest: /etc/nginx/sites-available/{{ domain_name }}
+
+    - name: Enable Nginx site
+      file:
+        src: /etc/nginx/sites-available/{{ domain_name }}
+        dest: /etc/nginx/sites-enabled/{{ domain_name }}
+        state: link
+
+    - name: Remove default Nginx site
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+
+    - name: Reload Nginx
+      service:
+        name: nginx
+        state: reloaded
+
+    # --- Application Deployment ---
+    - name: Create application directory
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Generate docker-compose.yml from template
+      template:
+        src: templates/docker-compose.prod.yml.j2
+        dest: "{{ app_dir }}/docker-compose.yml"
+
+    - name: Generate .env file from template
+      template:
+        src: templates/.env.j2
+        dest: "{{ app_dir }}/.env"
+
+    - name: Pull latest Docker images
+      command: docker compose pull
+      args:
+        chdir: "{{ app_dir }}"
+
+    - name: Start services with Docker Compose
+      command: docker compose up -d --remove-orphans
+      args:
+        chdir: "{{ app_dir }}"
+
+    - name: Prune unused Docker images
+      command: docker image prune -f
