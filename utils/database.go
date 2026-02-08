@@ -35,6 +35,47 @@ func InitDB() error {
 	}
 
 	log.Printf("✅ Successfully connected to MySQL database: %s", dbname)
+
+	// Create tables if they don't exist
+	if err := createTables(); err != nil {
+		return fmt.Errorf("failed to create tables: %v", err)
+	}
+
+	return nil
+}
+
+// createTables creates necessary tables if they don't exist
+func createTables() error {
+	userTableQuery := `CREATE TABLE IF NOT EXISTS users (
+		id INT AUTO_INCREMENT PRIMARY KEY,
+		google_id VARCHAR(255) UNIQUE NOT NULL,
+		email VARCHAR(255) NOT NULL,
+		name VARCHAR(255),
+		picture TEXT,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+	);`
+
+	if _, err := DB.Exec(userTableQuery); err != nil {
+		return fmt.Errorf("failed to create users table: %v", err)
+	}
+
+	articleTableQuery := `CREATE TABLE IF NOT EXISTS article (
+		id INT AUTO_INCREMENT PRIMARY KEY,
+		user_id INT NOT NULL,
+		title VARCHAR(255) NOT NULL,
+		content TEXT,
+		created DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+		deleted DATETIME DEFAULT NULL,
+		FOREIGN KEY (user_id) REFERENCES users(id)
+	);`
+
+	if _, err := DB.Exec(articleTableQuery); err != nil {
+		return fmt.Errorf("failed to create article table: %v", err)
+	}
+
+	log.Println("✅ Database tables checked/created successfully")
 	return nil
 }
 
