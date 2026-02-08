@@ -25,10 +25,15 @@ var (
 
 // InitOAuth initializes the OAuth configuration
 func InitOAuth() {
+	redirectURL := os.Getenv("GOOGLE_REDIRECT_URL")
+	if redirectURL == "" {
+		redirectURL = "http://localhost:8080/auth/google/callback" // fallback for local dev
+	}
+
 	googleOAuthConfig = &oauth2.Config{
 		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
 		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
-		RedirectURL:  os.Getenv("GOOGLE_REDIRECT_URL"),
+		RedirectURL:  redirectURL,
 		Scopes: []string{
 			"https://www.googleapis.com/auth/userinfo.email",
 			"https://www.googleapis.com/auth/userinfo.profile",
@@ -47,6 +52,7 @@ func GoogleLoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	url := googleOAuthConfig.AuthCodeURL("state", oauth2.AccessTypeOffline)
+	log.Printf("Starting Google Login. Auth URL: %s", url)
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
