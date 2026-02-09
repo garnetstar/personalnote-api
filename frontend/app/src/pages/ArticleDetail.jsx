@@ -84,7 +84,7 @@ export default function ArticleDetail() {
   if (loading) {
     return (
       <div className="app">
-        <div style={{ padding: '2rem', textAlign: 'center' }}>
+        <div style={{ padding: '1.25rem 0.75rem', textAlign: 'center' }}>
           <p>Loading article...</p>
         </div>
       </div>
@@ -94,10 +94,10 @@ export default function ArticleDetail() {
   if (error) {
     return (
       <div className="app">
-        <div style={{ padding: '2rem' }}>
+        <div style={{ padding: '1.25rem 0.75rem' }}>
           <h1 style={{ color: 'var(--accent-color)' }}>Error</h1>
           <p style={{ color: 'var(--muted-text)' }}>{error}</p>
-          <Link to="/" className="secondary" style={{ display: 'inline-block', marginTop: '1rem' }}>
+          <Link to="/" className="secondary" style={{ display: 'inline-block', marginTop: '0.75rem' }}>
             ← Back to Articles
           </Link>
         </div>
@@ -108,9 +108,9 @@ export default function ArticleDetail() {
   if (!article) {
     return (
       <div className="app">
-        <div style={{ padding: '2rem' }}>
+        <div style={{ padding: '1.25rem 0.75rem' }}>
           <h1>Article not found</h1>
-          <Link to="/" className="secondary" style={{ display: 'inline-block', marginTop: '1rem' }}>
+          <Link to="/" className="secondary" style={{ display: 'inline-block', marginTop: '0.75rem' }}>
             ← Back to Articles
           </Link>
         </div>
@@ -120,22 +120,23 @@ export default function ArticleDetail() {
 
   return (
     <div className="app">
-      <div style={{ maxWidth: '100%', margin: '0 auto', padding: '0 2rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+      <div style={{ maxWidth: '100%', margin: '0 auto', padding: '0 0.75rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem' }}>
           <Link to="/" className="secondary" style={{ display: 'inline-block' }}>
             ← Back to Articles
           </Link>
           {user && article && user.id === article.user_id && (
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
               <Link 
                 to={`/article/${id}/edit`} 
                 style={{ 
-                  padding: '0.5rem 1rem', 
+                  padding: '0.4rem 0.8rem', 
                   background: 'var(--accent-color)', 
                   color: 'white', 
                   textDecoration: 'none', 
                   borderRadius: '4px',
-                  transition: 'all 0.2s'
+                  transition: 'all 0.2s',
+                  fontSize: '0.9rem'
                 }}
               >
                 Edit Article
@@ -144,14 +145,15 @@ export default function ArticleDetail() {
                 onClick={handleDelete}
                 disabled={deleting}
                 style={{
-                  padding: '0.5rem 1rem',
+                  padding: '0.4rem 0.8rem',
                   background: '#dc2626',
                   color: 'white',
                   border: 'none',
                   borderRadius: '4px',
                   cursor: deleting ? 'not-allowed' : 'pointer',
                   opacity: deleting ? 0.6 : 1,
-                  transition: 'all 0.2s'
+                  transition: 'all 0.2s',
+                  fontSize: '0.9rem'
                 }}
               >
                 {deleting ? 'Deleting...' : 'Delete'}
@@ -160,7 +162,7 @@ export default function ArticleDetail() {
           )}
         </div>
 
-        <article className="article-card" style={{ marginTop: '1.5rem' }}>
+        <article className="article-card" style={{ marginTop: '0.5rem' }}>
           <header className="article-card__header">
             <span className="article-card__id">#{article.id ?? '—'}</span>
             <h1 style={{ margin: 0 }}>{article.title || 'Untitled article'}</h1>
