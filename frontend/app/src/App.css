@@ -160,6 +160,18 @@ a.app__sidebar-link .app__sidebar-date {
   align-items: center;
 }
 
+.app__header-inner {
+  width: 100%;
+}
+
+.app__header-actions {
+  flex: 0 0 auto;
+}
+
+.app__header-user {
+  margin-left: auto;
+}
+
 .app__title h1 {
   font-size: clamp(1.75rem, 3vw, 2.4rem);
   margin: 0;
@@ -310,7 +322,7 @@ a.app__sidebar-link .app__sidebar-date {
 
 @media (max-width: 640px) {
   .app {
-    padding: 2.5rem 1rem 3rem;
+    padding: 1.75rem 0.85rem 2.25rem;
   }
 
   .stat-card {
@@ -324,5 +336,50 @@ a.app__sidebar-link .app__sidebar-date {
 
   .app__sidebar-link {
     padding: 0.6rem 0.75rem;
+  }
+
+  .app__header-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .app__header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .app__header-actions button,
+  .app__header-actions a button {
+    width: 100%;
+  }
+
+  .app__header-user {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .app__header-user > button {
+    margin-left: auto;
+  }
+
+  .controls {
+    gap: 0.75rem;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .toolbar__label {
+    width: 100%;
+    margin-bottom: 0.25rem;
+  }
+
+  .toolbar select,
+  .toolbar input,
+  .toolbar button {
+    width: 100%;
   }
 }

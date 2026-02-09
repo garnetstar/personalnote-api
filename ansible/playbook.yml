@@ -87,6 +87,12 @@
         port: '8080'
         proto: tcp
 
+    - name: Configure UFW (Allow Adminer)
+      ufw:
+        rule: allow
+        port: '8081'
+        proto: tcp        
+
     - name: Configure UFW (Allow Frontend)
       ufw:
         rule: allow

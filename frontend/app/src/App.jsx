@@ -237,8 +237,11 @@ export default function App() {
 
         <main className="app__main">
           <header className="app__header">
-            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-              <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <div
+              className="app__header-inner"
+              style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}
+            >
+              <div className="app__header-actions" style={{ display: 'flex', gap: '0.75rem' }}>
                 <button
                   type="button"
                   className="secondary"
@@ -253,7 +256,7 @@ export default function App() {
                   </button>
                 </Link>
               </div>
-              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              <div className="app__header-user" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                 {user && (
                   <div style={{ textAlign: 'right', fontSize: '0.85rem', lineHeight: '1.3' }}>
                     <div style={{ fontWeight: '500', color: '#333' }}>

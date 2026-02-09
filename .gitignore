@@ -6,3 +6,5 @@ frontend/node_modules/.vite/deps/
 frontend/app/node_modules/
 frontend/app/node_modules/.vite/deps/
 frontend/app/dist/
+
+deploy.sh

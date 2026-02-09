@@ -115,6 +115,8 @@ func GoogleCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	if frontendURL == "" {
 		frontendURL = "http://localhost:3000"
 	}
+	// Ensure we don't end up with double slashes when building the callback URL
+	frontendURL = strings.TrimRight(frontendURL, "/")
 	http.Redirect(w, r, fmt.Sprintf("%s/auth/callback?token=%s", frontendURL, jwtToken), http.StatusTemporaryRedirect)
 }
 

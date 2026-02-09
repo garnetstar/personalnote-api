@@ -54,3 +54,23 @@
 .google-login-btn:active {
   transform: translateY(0);
 }
+
+@media (max-width: 640px) {
+  .login-container {
+    padding: 1.5rem 1rem;
+  }
+
+  .login-card {
+    padding: 2.25rem 1.5rem;
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .login-card h1 {
+    font-size: 1.7rem;
+  }
+
+  .google-login-btn {
+    padding-inline: 1.25rem;
+  }
+}

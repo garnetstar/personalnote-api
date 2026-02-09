@@ -165,3 +165,23 @@
   color: rgba(148, 163, 184, 0.78);
   font-weight: 500;
 }
+
+@media (max-width: 640px) {
+  .article-card {
+    padding: 1.1rem 0.9rem;
+  }
+
+  .article-card__header {
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .article-card__header h3 {
+    font-size: 1.1rem;
+  }
+
+  .empty-state {
+    padding: 1.8rem 1.2rem;
+    border-radius: 1rem;
+  }
+}
