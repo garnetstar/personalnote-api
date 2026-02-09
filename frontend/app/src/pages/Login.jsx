@@ -1,8 +1,17 @@
 import './Login.css';
 
+const normalizeBaseUrl = (value) => {
+  if (!value) {
+    return '/api';
+  }
+  return value.endsWith('/') ? value.slice(0, -1) : value;
+};
+
+const API_BASE_URL = normalizeBaseUrl(import.meta.env.VITE_API_BASE_URL);
+
 export default function Login() {
   const handleGoogleLogin = () => {
-    window.location.href = '/api/auth/google/login';
+    window.location.href = `${API_BASE_URL}/auth/google/login`;
   };
 
   return (
