@@ -64,12 +64,6 @@ const Sidebar = memo(({ loading, articles, sidebarEntries, isCompactLayout }) =>
         </span>
       </header>
 
-      {isCompactLayout && (
-        <p className="app__sidebar-tip" role="status">
-          This panel is stacked above the articles on small screens. Enlarge your window to keep it docked to the left.
-        </p>
-      )}
-
       {loading && articles.length === 0 ? (
         <p className="app__sidebar-placeholder">Loading titles…</p>
       ) : sidebarEntries.length === 0 ? (
