@@ -241,20 +241,27 @@ export default function App() {
               className="app__header-inner"
               style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}
             >
-              <div className="app__header-actions" style={{ display: 'flex', gap: '0.75rem' }}>
-                <button
-                  type="button"
-                  className="secondary"
-                  onClick={loadAllArticles}
-                  disabled={loading}
-                >
-                  Refresh
-                </button>
-                <Link to="/article/new" style={{ textDecoration: 'none' }}>
-                  <button type="button">
-                    New Article
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <img 
+                  src="/garnetstar.jpeg" 
+                  alt="Garnetstar Logo" 
+                  style={{ height: '40px', width: 'auto' }}
+                />
+                <div className="app__header-actions" style={{ display: 'flex', gap: '0.75rem' }}>
+                  <button
+                    type="button"
+                    className="secondary"
+                    onClick={loadAllArticles}
+                    disabled={loading}
+                  >
+                    Refresh
                   </button>
-                </Link>
+                  <Link to="/article/new" style={{ textDecoration: 'none' }}>
+                    <button type="button">
+                      New Article
+                    </button>
+                  </Link>
+                </div>
               </div>
               <div className="app__header-user" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                 {user && (
