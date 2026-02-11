@@ -31,7 +31,7 @@
   margin: 0;
   flex: 1 1 auto;
   font-size: 1.25rem;
-  color: var(--strong-text);
+  color: var(--headline-color);
 }
 
 .article-card__id {

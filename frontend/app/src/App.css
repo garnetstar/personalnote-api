@@ -64,7 +64,7 @@
 .app__sidebar-header h2 {
   margin: 0;
   font-size: 1.25rem;
-  color: var(--strong-text);
+  color: var(--headline-color);
 }
 
 .app__sidebar-count {
@@ -176,7 +176,7 @@ a.app__sidebar-link .app__sidebar-date {
 .app__title h1 {
   font-size: clamp(1.75rem, 3vw, 2.4rem);
   margin: 0;
-  color: var(--strong-text);
+  color: var(--headline-color);
 }
 
 .app__title p {
