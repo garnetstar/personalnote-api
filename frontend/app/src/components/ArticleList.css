@@ -69,6 +69,12 @@
   overflow-wrap: anywhere;
 }
 
+.article-card__content img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
 .article-card__content-wrapper {
   position: relative;
   max-height: 18rem;
