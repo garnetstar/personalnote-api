@@ -13,6 +13,14 @@ func SetupRoutes() {
 		http.Handle(pattern, middleware.WithCORS(handler))
 	}
 
+	// Static file serving
+	http.Handle("/garnetstar.ico", middleware.WithCORS(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./static/garnetstar.ico")
+	})))
+	http.Handle("/garnetstar.jpeg", middleware.WithCORS(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./static/garnetstar.jpeg")
+	})))
+
 	// Public routes
 	register("/", handlers.HelloHandler)
 	register("/articles", handlers.ArticlesHandler)

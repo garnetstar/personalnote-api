@@ -17,7 +17,15 @@ FROM alpine:latest
 RUN set -x
 RUN adduser -D app
 WORKDIR /home/app
+
+# Copy the server binary
 COPY --from=build /app/server .
+
+# Create static directory and copy static assets
+RUN mkdir -p static
+COPY --from=build /app/garnetstar.ico ./static/
+COPY --from=build /app/garnetstar.jpeg ./static/
+
 USER app
 EXPOSE 8080
 ENTRYPOINT ["./server"]
