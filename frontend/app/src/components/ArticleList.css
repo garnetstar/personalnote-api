@@ -2,20 +2,21 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  display: grid;
-  gap: 0.9rem;
-  grid-template-columns: minmax(0, 1fr);
+  display: block;
 }
 
 .article-card {
-  background: var(--card-bg);
-  border-radius: 4px;
-  padding: 1.1rem;
-  box-shadow: 0 2px 8px rgba(2, 6, 23, 0.15);
+  background: transparent;
+  border-radius: 0;
+  padding: 1rem 0;
+  box-shadow: none;
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
-  border: 1px solid var(--card-border);
+  gap: 0.4rem;
+}
+
+.article-card + .article-card {
+  margin-top: 0.75rem;
 }
 
 .article-card__header {
@@ -34,24 +35,22 @@
 }
 
 .article-card__id {
-  font-weight: 600;
-  color: #0b1120;
-  background: rgba(96, 165, 250, 0.85);
-  padding: 0.35rem 0.65rem;
-  border-radius: 4px;
-  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--muted-text);
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  font-size: 0.85rem;
   text-decoration: none;
-  transition: background 0.2s ease, transform 0.15s ease;
+  transition: color 0.15s ease;
   display: inline-block;
   cursor: pointer;
 }
 
 .article-card__id:hover,
 .article-card__id:focus {
-  background: rgba(96, 165, 250, 1);
-  transform: translateY(-1px);
+  color: var(--accent-color);
   outline: none;
-  box-shadow: 0 4px 12px rgba(96, 165, 250, 0.4);
 }
 
 .article-card__updated {
@@ -83,7 +82,7 @@
   inset: auto 0 0;
   height: 4.5rem;
   pointer-events: none;
-  background: linear-gradient(to bottom, rgba(15, 23, 42, 0), rgba(15, 23, 42, 0.85));
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.9));
 }
 
 .article-card__content-wrapper--expanded {
@@ -112,9 +111,9 @@
 .article-card__content pre code {
   display: block;
   padding: 1rem 1.2rem;
-  border-radius: 0.9rem;
-  box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0.22);
-  background: rgba(15, 23, 42, 0.55);
+  border-radius: 0.6rem;
+  box-shadow: none;
+  background: rgba(15, 23, 42, 0.9);
   overflow-x: auto;
 }
 
@@ -135,9 +134,9 @@
 .article-card__content blockquote {
   margin: 0.75rem 0;
   padding: 0.75rem 1rem;
-  border-left: 4px solid rgba(96, 165, 250, 0.45);
-  background: rgba(37, 99, 235, 0.18);
-  border-radius: 0.8rem;
+  border-left: none;
+  background: transparent;
+  border-radius: 0;
   color: rgba(226, 232, 240, 0.82);
 }
 
@@ -157,10 +156,10 @@
 }
 
 .empty-state {
-  padding: 2.5rem 1.5rem;
-  background: rgba(15, 23, 42, 0.65);
-  border: 2px dashed rgba(148, 163, 184, 0.35);
-  border-radius: 1.25rem;
+  padding: 1.25rem 0.25rem;
+  background: transparent;
+  border: none;
+  border-radius: 0;
   text-align: center;
   color: rgba(148, 163, 184, 0.78);
   font-weight: 500;
@@ -168,7 +167,7 @@
 
 @media (max-width: 640px) {
   .article-card {
-    padding: 0.8rem 0.7rem;
+    padding: 0.6rem 0;
   }
 
   .article-card__header {
@@ -181,7 +180,7 @@
   }
 
   .empty-state {
-    padding: 1.2rem 0.9rem;
-    border-radius: 0.75rem;
+    padding: 0.85rem 0.25rem;
+    border-radius: 0;
   }
 }
