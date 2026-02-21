@@ -7,8 +7,11 @@ import (
 	"net/http"
 	"os"
 
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
 	"google.golang.org/api/drive/v3"
 	"google.golang.org/api/option"
+
 	"personalnote.eu/simple-go-api/utils"
 )
 
@@ -47,6 +50,11 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 	// Option 2: From file path
 	credsFile := os.Getenv("GOOGLE_SERVICE_ACCOUNT_FILE")
 
+	// Option 3: From Refresh Token (for personal accounts)
+	refreshToken := os.Getenv("GOOGLE_REFRESH_TOKEN")
+	clientID := os.Getenv("GOOGLE_CLIENT_ID")
+	clientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
+
 	log.Printf("Env var GOOGLE_SERVICE_ACCOUNT_FILE: '%s'", credsFile)
 
 	var driveService *drive.Service
@@ -54,7 +62,18 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 
 	ctx := context.Background()
 
-	if credsJSON != "" {
+	if refreshToken != "" && clientID != "" && clientSecret != "" {
+		log.Println("Using Refresh Token for OAuth 2.0")
+		config := &oauth2.Config{
+			ClientID:     clientID,
+			ClientSecret: clientSecret,
+			Endpoint:     google.Endpoint,
+			Scopes:       []string{drive.DriveFileScope},
+		}
+		token := &oauth2.Token{RefreshToken: refreshToken}
+		tokenSource := config.TokenSource(ctx, token)
+		driveService, serviceErr = drive.NewService(ctx, option.WithTokenSource(tokenSource))
+	} else if credsJSON != "" {
 		log.Println("Using credsJSON")
 		driveService, serviceErr = drive.NewService(ctx, option.WithCredentialsJSON([]byte(credsJSON)), option.WithScopes(drive.DriveScope))
 	} else if credsFile != "" {
