@@ -8,3 +8,4 @@ frontend/app/node_modules/.vite/deps/
 frontend/app/dist/
 
 deploy.sh
+keys/

@@ -18,6 +18,9 @@ services:
       - GOOGLE_CLIENT_ID={{ google_client_id }}
       - GOOGLE_CLIENT_SECRET={{ google_client_secret }}
       - GOOGLE_REDIRECT_URL={{ app_url }}/api/auth/google/callback
+      - GOOGLE_SERVICE_ACCOUNT_FILE=/app/keys/quickstart-1549817042430-d5f603eed637.json
+    volumes:
+      - ./keys:/app/keys:ro
     depends_on:
       mysql:
         condition: service_healthy

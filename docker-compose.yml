@@ -20,6 +20,9 @@ services:
       - GOOGLE_REDIRECT_URL=${GOOGLE_REDIRECT_URL:-http://localhost:8080/auth/google/callback}
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
       - JWT_SECRET=${JWT_SECRET:-your_super_secret_jwt_key_change_this_in_production}
+      - GOOGLE_SERVICE_ACCOUNT_FILE=/app/keys/quickstart-1549817042430-d5f603eed637.json
+    volumes:
+      - ./keys:/app/keys:ro
     depends_on:
       mysql:
         condition: service_healthy

@@ -148,6 +148,18 @@
         state: directory
         mode: '0755'
 
+    - name: Create keys directory
+      file:
+        path: "{{ app_dir }}/keys"
+        state: directory
+        mode: '0755'
+
+    - name: Copy Google Service Account Key
+      copy:
+        src: ../keys/quickstart-1549817042430-d5f603eed637.json
+        dest: "{{ app_dir }}/keys/quickstart-1549817042430-d5f603eed637.json"
+        mode: '0600'
+
     - name: Generate docker-compose.yml from template
       template:
         src: templates/docker-compose.prod.yml.j2
