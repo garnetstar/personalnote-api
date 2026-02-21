@@ -49,9 +49,9 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
 	if credsJSON != "" {
-		driveService, serviceErr = drive.NewService(ctx, option.WithCredentialsJSON([]byte(credsJSON)))
+		driveService, serviceErr = drive.NewService(ctx, option.WithCredentialsJSON([]byte(credsJSON)), option.WithScopes(drive.DriveScope))
 	} else if credsFile != "" {
-		driveService, serviceErr = drive.NewService(ctx, option.WithCredentialsFile(credsFile))
+		driveService, serviceErr = drive.NewService(ctx, option.WithCredentialsFile(credsFile), option.WithScopes(drive.DriveScope))
 	} else {
 		log.Println("❌ Google Service Account credentials not found")
 		utils.SendErrorResponse(w, http.StatusInternalServerError, "Configuration error", "Google Drive integration is not configured")
