@@ -1,13 +1,16 @@
 # build stage
-FROM golang:1.22.2-alpine AS build
+FROM golang:1.24-alpine AS build
 WORKDIR /app
+
+# Install git for fetch dependencies
+RUN apk add --no-cache git
 
 # Print every command and output
 RUN set -x
 
 # cache dependencies
 COPY go.mod go.sum ./
-# RUN go mod download
+RUN go mod download
 
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o server main.go
