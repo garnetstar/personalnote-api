@@ -83,6 +83,13 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		Name: header.Filename,
 	}
 
+	folderID := os.Getenv("GOOGLE_DRIVE_FOLDER_ID")
+	if folderID != "" {
+		driveFile.Parents = []string{folderID}
+	} else {
+		log.Println("⚠️ GOOGLE_DRIVE_FOLDER_ID not set. Attempting to upload to root (likely to fail for Service Accounts).")
+	}
+
 	// Upload file
 	log.Printf("📤 Uploading file '%s' (Size: %d bytes) for user %d", header.Filename, header.Size, userID)
 

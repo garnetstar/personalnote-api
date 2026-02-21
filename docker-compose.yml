@@ -21,6 +21,7 @@ services:
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
       - JWT_SECRET=${JWT_SECRET:-your_super_secret_jwt_key_change_this_in_production}
       - GOOGLE_SERVICE_ACCOUNT_FILE=/app/keys/quickstart-1549817042430-d5f603eed637.json
+      - GOOGLE_DRIVE_FOLDER_ID=1_Ya2XCpaZNf5VlKLO9kZycnqX41htOdC
     volumes:
       - ./keys:/app/keys:ro
     depends_on:

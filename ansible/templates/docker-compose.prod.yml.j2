@@ -19,6 +19,7 @@ services:
       - GOOGLE_CLIENT_SECRET={{ google_client_secret }}
       - GOOGLE_REDIRECT_URL={{ app_url }}/api/auth/google/callback
       - GOOGLE_SERVICE_ACCOUNT_FILE=/app/keys/quickstart-1549817042430-d5f603eed637.json
+      - GOOGLE_DRIVE_FOLDER_ID={{ google_drive_folder_id }}
     volumes:
       - ./keys:/app/keys:ro
     depends_on:

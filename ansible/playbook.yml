@@ -17,6 +17,7 @@
     app_url: "https://personalnote.eu"
     google_client_id: "changeme"
     google_client_secret: "changeme"
+    google_drive_folder_id: "1_Ya2XCpaZNf5VlKLO9kZycnqX41htOdC"
 
   tasks:
     - name: Update apt cache
@@ -158,7 +159,7 @@
       copy:
         src: ../keys/quickstart-1549817042430-d5f603eed637.json
         dest: "{{ app_dir }}/keys/quickstart-1549817042430-d5f603eed637.json"
-        mode: '0600'
+        mode: '0644'
 
     - name: Generate docker-compose.yml from template
       template:
