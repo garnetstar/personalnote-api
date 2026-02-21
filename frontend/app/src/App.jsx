@@ -250,6 +250,11 @@ export default function App() {
                   >
                     Refresh
                   </button>
+                  <Link to="/upload" style={{ textDecoration: 'none' }}>
+                    <button type="button" className="secondary">
+                      Upload Image
+                    </button>
+                  </Link>
                   <Link to="/article/new" style={{ textDecoration: 'none' }}>
                     <button type="button">
                       New Article

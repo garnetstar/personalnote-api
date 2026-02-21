@@ -31,4 +31,7 @@ func SetupRoutes() {
 	register("/auth/google/login", handlers.GoogleLoginHandler)
 	register("/auth/google/callback", handlers.GoogleCallbackHandler)
 	register("/auth/user", handlers.UserInfoHandler)
+
+	// File upload routes
+	register("/upload", handlers.UploadHandler)
 }

@@ -4,6 +4,7 @@ import App from './App.jsx';
 import ArticleDetail from './pages/ArticleDetail.jsx';
 import ArticleEdit from './pages/ArticleEdit.jsx';
 import ArticleNew from './pages/ArticleNew.jsx';
+import ImageUpload from './pages/ImageUpload.jsx';
 import Login from './pages/Login.jsx';
 import AuthCallback from './pages/AuthCallback.jsx';
 
@@ -35,6 +36,7 @@ export default function AppRoutes() {
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/" element={<ProtectedRoute><App /></ProtectedRoute>} />
       <Route path="/article/new" element={<ProtectedRoute><ArticleNew /></ProtectedRoute>} />
+      <Route path="/upload" element={<ProtectedRoute><ImageUpload /></ProtectedRoute>} />
       <Route path="/article/:id" element={<ProtectedRoute><ArticleDetail /></ProtectedRoute>} />
       <Route path="/article/:id/edit" element={<ProtectedRoute><ArticleEdit /></ProtectedRoute>} />
       <Route path="*" element={<NotFoundPage />} />
