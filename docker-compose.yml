@@ -49,7 +49,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ./data/mysql_data:/var/lib/mysql
+      - ./_data/mysql_data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
       interval: 10s

@@ -166,10 +166,11 @@
         src: templates/docker-compose.prod.yml.j2
         dest: "{{ app_dir }}/docker-compose.yml"
 
-    - name: Generate .env file from template
-      template:
-        src: templates/.env.j2
+    - name: Copy prod.env to server as .env
+      copy:
+        src: ../prod.env
         dest: "{{ app_dir }}/.env"
+        mode: '0644'
 
     - name: Pull latest Docker images
       command: docker compose pull
